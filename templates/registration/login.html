@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F5F8FF;
+            margin: 0;
+            padding: 0;
+            align-content: center;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        input[type="submit"], input[type="text"], input[type="password"]{
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #6A64F1;
+            color: white;
+            border: none;
+            cursor: pointer;
+            height: 40px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .header{
+            color: red; 
+            font-size: 50px;
+        }
+        .sub-header{
+            color: #393680; 
+            font-size: 20px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-bottom: 10px;
+        }
+        label{
+            font-size: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+        .admin-login-label, .dashboard-label{
+            margin:auto; 
+            color: #555; 
+            font-size: 15px;
+        }
+        .alert{
+            color: red;
+            font-size: 14px;
+        }
+        @media only screen and (max-width: 370px){
+            .container {
+                max-width: 200px;
+                padding: 10px;
+            }
+            .header{
+                font-size: 40px;
+            }
+            .sub-header{
+                font-size: 16px;
+            }
+            .admin-login-label, .dashboard-label{
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="header">SNSS</h1>  
+    <div class="container">
+            <form method="post" action="{% url 'login' %}">
+                <h2 class="sub-header">Maintenance Report System</h2>
+                {% csrf_token %}
+                <div class="input-group">
+                <label for="id_username">Username:</label>
+                <input type="text" name="username" id="id_username">
+                </div><br>
+                <div class="input-group">
+                    <label for="id_password">Password:</label>
+                    <input type="password" name="password" id="id_password">
+                </div><br>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <br>
+                <input type="submit" value="Login" class="submit-button">
+                <input type="hidden" name="next" value="{{ request.GET.next }}"/>
+                <!-- <input type="hidden" name="next" value="{{ next }}"> -->
+                <div class="external-links" style="text-align: center; margin: 10px; display: flex;">
+                    <a href="/admin/" class="admin-login-label">Admin Login</a>
+                    <a href="/inform/dashboard" class="dashboard-label">Go to Dashboard</a>
+                </div>
+<!--                 
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{request.GET.next}}"/>
+                {% endif %} -->
+                
+            </form>
+    </div>
+</body>
+</html>

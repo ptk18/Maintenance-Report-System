@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #F5F8FF;
+            font-size: 15px;
+        }
+
+        .container {
+            width: 90%;
+            margin:  auto;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .nav-bar{
+            width: 100%;
+            display: flex;
+            height: 3em;
+            margin-top: -5px;
+        }
+
+
+        .nav-bar button{
+            text-align: center;
+            border: none;
+            margin: 5px 0;
+            width: 100%;
+            padding: 10px 20px;
+           
+            background-color: #6A64F1;
+            color: white;
+            cursor: pointer;
+        }
+        .nav-bar button:first-child{
+            border-right: 1px solid #333;
+        }
+        .nav-bar button.active {
+            background-color: #4a47a3;
+        }
+
+        .reports-container {
+            padding: 0px 20px;
+            background-color: #FFFFFF;
+            display: none;
+
+        }
+        .report-card {
+            background-color: #F5F8FF;
+            padding: 5px 50px;
+            border-radius: 8px;
+        }
+        .report-card li{
+            color: #555;
+        }
+        .reportData-status{
+            display: flex;
+        }
+        .history{
+            display: none;
+            padding: 0px 20px;
+            background-color: #FFFFFF;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        ul li p img {
+            display: block;
+            margin: 10px 0;
+        }
+
+        form {
+            margin-top: 0px;
+        }
+
+        form button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .confirmbtn{
+            background-color: #6A64F1;
+            color: white;
+        }
+        .cancelbtn{
+            background-color: #f44336;
+            color: white;
+        }
+        .confirmbtn:disabled, .cancelbtn:disabled {
+            background-color: #6e6d6d8f; 
+            cursor: not-allowed; 
+        }
+
+        form button:hover {
+            opacity: 0.8;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Adjust as needed */
+            margin: auto;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .carousel-images {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-images img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .carousel-buttons {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+
+        .carousel-buttons button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .carousel-buttons button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Modal CSS */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            padding-top: 30px; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 600px;
+            max-height: 400px;
+        }
+
+        .modal-content img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .pagination {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .pagination a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .pagination a.active {
+            background-color: #6A64F1;
+            color: white;
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
+
+        .pagination .prev,
+        .pagination .next {
+            float: none;
+        }
+        .pending-tag {
+            width: 100px; 
+            height: 25px; 
+            font-size: 14px;
+            background-color: yellow;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .approved-tag {
+            width: 100px; 
+            height: 25px; 
+            background-color: orange;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        .validated {
+            width: 100px; 
+            height: 25px; 
+            background-color: #E74133;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .email_sent {
+            width: 100px; 
+            height: 25px; 
+            background-color: #4470b1;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .solved {
+            width: 100px; 
+            height: 25px; 
+            font-size: 14px;
+            background-color: #17BF0B;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .finished {
+            width: 100px; 
+            height: 25px; 
+            background-color: #2A9D8F;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .rejected {
+            width: 100px; 
+            height: 25px; 
+            font-size: 14px;
+            background-color:  #7C7C7C;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .active {
+            display: block;
+        }
+        .back{
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .user-level{
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            background-color: yellow; 
+            margin: 18px 5px;
+        }
+        .user-level-p{
+            padding-right: 10px; 
+            font-weight: bold; 
+            color: #393680;   
+        }
+
+        .sub-nav{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 2rem;
+            margin-top: 10px;
+        }
+        
+        #filter-form .filter-item{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            padding: 0px 10px 0px 10px;
+        }
+        .filter-item select{
+                height: 30px;
+                font-size: 12px;
+            } 
+
+            .pagination {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+        }
+
+        .pagination-container {
+            display: inline-flex;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        
+        @media only screen and (min-width: 250px) and (max-width: 768px) {
+            /* Add styles for phones */
+            .container{
+                width: 100%;
+                font-size: 12px;
+            }
+            .reports-container {
+                width: 90%;
+            }
+            .carousel {
+                width: 100%;
+                max-width: 300px; /* Adjust as needed */
+            }
+            .reportData-status{
+                display: block;
+                width: 100%;
+            }
+            .user-level{
+                width: 10px; 
+                height: 10px; 
+                margin: 10px 5px;
+            }
+            .user-level-p{
+               margin-top: 6px;
+               padding-right: 2px;
+            }
+            .welcome-title{
+                font-size: 16px;
+            }
+            .back{
+                font-size: 14px;
+            }
+            .nav-bar{
+                height: 45px;
+            }
+
+            }
+
+
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div style="display: flex; width: 100%;">
+        <div style="flex: 2; margin-top: 5px;">
+            <a href="{% url 'login' %}" class="back">&#10094; Back</a>
+        </div>
+        <div style="flex: 8; text-align: center;">
+            <h2 style="color: #393680;" class="welcome-title">Welcome, {{ user.username }}!</h2>
+        </div>
+        <div style="flex: 2;">
+            <div style="display: flex; justify-content: flex-end;">
+                <div class="user-level"></div>
+                <p class="user-level-p">General</p>
+            </div>
+        </div>
+    </div>
+    {% else %}  
+        <h1>You are not logged in!</h1>
+        <p>Please <a href="{% url 'login' %}">log in</a>.</p>
+    {% endif %}
+
+    {% block content %}
+    
+    <div class="container">
+        <div class="nav-bar">
+            <button class="active" data-section="reports-container" onclick="showSection('reports-container')" style="font-weight: bold;">Manage Reports</button>
+            <button data-section="history" onclick="showSection('history')" style="font-weight: bold;">History</button>
+        </div>
+        <script>
+            // Function to initialize the section based on local storage
+            function initializeSection() {
+                const activeSection = localStorage.getItem('activeSection') || 'reports-container';
+                showSection(activeSection);
+            }
+            // Call initializeSection when the page loads
+            document.addEventListener('DOMContentLoaded', initializeSection);
+            function showSection(section) {
+
+                console.log("Output")
+                document.querySelector('.reports-container').classList.remove('active');
+                document.querySelector('.history').classList.remove('active');
+                document.querySelector(`.${section}`).classList.add('active');
+
+                document.querySelector('.nav-bar .active').classList.remove('active');
+                document.querySelector(`button[data-section="${section}"]`).classList.add('active');
+                console.log("section ", section);
+
+                // Save the current section to local storage
+                localStorage.setItem('activeSection', section);
+            }
+
+        </script>
+        <div class="reports-container  active">
+            <div style="border-left: 5px solid #6A64F1; padding-left: 5px;">
+                <h3>Manage Reports</h3>
+                <script>
+                    // JavaScript to submit the form on change
+                    document.getElementById('status-filter').addEventListener('change', function() {
+                        document.getElementById('status-filter-form').submit();
+                    });
+                </script>
+            </div>
+            
+            <ul id="reports-ul">
+                {% if page_obj %}
+                    {% for report in page_obj %}
+                    <div class="report-card" style="border-top: 4px solid #6A64F1;">
+                        <div class="reportData-status">
+                            <div style="flex: 10;">
+                                <li><span style="font-weight: bold; color: #555;">Reporter Name: </span>{{ report.reporterNameReal }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Operation Line: </span>{{ report.operationLineNumber }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Machine Number: </span>{{ report.machineNumber }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Problem Category: </span>{{ report.problemCategory }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Problem Type: </span>{{ report.subCategory }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Sub Category: </span>{{ report.subCategoryForUser }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Rank: </span>{{ report.rank }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Description: </span>{{ report.problemDescription }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Created At: </span>{{ report.datetime }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Due Date: </span>{{ report.dueDate }}</li>
+                                {% if report.sentBy %} 
+                                    <li><span style="font-weight: bold; color: #555;">Email Sent By: </span> {{ report.sentBy }}</li>
+                                {% endif %}
+                                {% if report.sentTo %} 
+                                    <li><span style="font-weight: bold; color: #555;">Email Sent To: </span> {{ report.sentTo }}</li>
+                                {% endif %}
+                                {% if report.solvedBy %} 
+                                    <li><span style="font-weight: bold; color: #555;">Issued Solved By: </span> {{ report.solvedBy }}</li>
+                                {% endif %}
+                                {% if report.rejectedBy %} 
+                                    <li><span style="font-weight: bold; color: #555;">Issued Rejected By: </span> {{ report.rejectedBy }}</li>
+                                {% endif %}
+                                {% if report.finishDate %} 
+                                    <li><span style="font-weight: bold; color: #555;">Finished Date: </span> {{ report.finishDate }}</li>
+                                {% endif %}
+                            </div>
+                            <div style="flex: 2; padding-top: 10px;">
+                                {% if report.status == '0' %}
+                                    <div class="pending-tag">Pending</div>
+                                {% elif report.status == '1' %}  
+                                    <div class="approved-tag">Approved</div>
+                                {% elif report.status == '2' %}  
+                                    <div class="validated">Validated</div>
+                                {% elif report.status == '3' %}  
+                                    <div class="email_sent">Email Sent</div>
+                                {% elif report.status == '3' %}  
+                                    <div class="solved">Solved</div>
+                                    <a style="font-size: 14px; margin: 10px 0px 0px 5px;" href="{% url 'solutionForReport' report.reportID %}">View Solution</a>
+                                {% elif report.status == '5' %}  
+                                    <div class="finished">Finished</div>
+                                    <a style="font-size: 14px; margin: 10px 0px 0px 5px;" href="{% url 'solutionForReport' report.reportID %}">View Solution</a>
+                                {% elif report.status == '6' %}  
+                                    <div class="rejected">Rejected</div>
+                                {% endif %}
+                                
+                            </div>
+                        </div>
+
+                        <li>
+                            <div class="carousel">
+                                <div class="carousel-images">
+                                    {% for image in report.images.all %}
+                                        <img src="{{ image.imageData.url }}" alt="Report Image" width="300px" height="350px" style="object-fit: cover;">
+                                    {% endfor %}
+                                </div>
+                                {% if report.images.all|length > 1 %}
+                                    <div class="carousel-buttons">
+                                        <button class="prev" onclick="moveCarousel(event, -1)">&#10094;</button>
+                                        <button class="next" onclick="moveCarousel(event, 1)">&#10095;</button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </li>
+                        <form method="post" action="{% url 'solution' report.reportID %}">
+                            {% csrf_token %}
+                            <button type="submit" name="confirm" value="{{ report.reportID }}" class="confirmbtn" {% if  report.status == '1' %}disabled{% endif %}>Submit Solution</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <li>No reports to display.</li>
+                {% endif %}
+                        
+            </ul>
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo;</a>
+                {% endif %}
+                <div class="pagination-container">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <a href="#" class="active">{{ num }}</a>
+                        {% else %}
+                            <a href="?page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="history">
+            <div class="sub-nav" style="border-left: 5px solid #6A64F1; padding-left: 5px;">
+                <h3>History</h3>
+                <form id="filter-form" method="get" action="{% url 'general' %}">
+                    <div class="filters" style="display: flex; margin: 10px 0px;">
+                        <div class="filter-item" style="flex: 6;  margin: 0 auto;">
+                            <label for="category-filter" style=" font-size:14px; font-weight: bold; color: #555;">Category:</label>
+                            <select id="category-filter" name="category">
+                                <option value="">All</option>
+                                {% for profession in professions %}
+                                <option value="{{ profession }}" {% if profession|stringformat:"s" == category|stringformat:"s" %}selected{% endif %}>{{ profession }}</option>
+                                {% endfor %}
+                            </select>
+                    
+                        </div>
+                        <div class="filter-item" style="flex: 6;  margin: 0 auto;">
+                            <label for="status-filter" style=" font-size:14px; font-weight: bold; color: #555;">Status:</label>
+                            <select id="status-filter" name="status" style="width: 80px;">
+                                <option value="">All</option>
+                                <option value="3"  {% if status == "3" %}selected{% endif %}>Email Sent</option>
+                                <option value="4"  {% if status == "4" %}selected{% endif %}>Solved</option>
+                                <option value="5"  {% if status == "5" %}selected{% endif %}>Finished</option>
+                                <option value="6"  {% if status == "6" %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+                <script>
+                    // JavaScript to submit the form on change
+                   document.getElementById('category-filter').addEventListener('change', function() {
+                       console.log("submitted")
+                       document.getElementById('filter-form').submit();
+                   });
+                   document.getElementById('status-filter').addEventListener('change', function() {
+                       console.log("Submitted Status")
+                       document.getElementById('filter-form').submit();
+                   });
+                   
+               </script>
+            </div>
+            
+            <ul>
+                {% if page_obj_history %}
+                    {% for report in page_obj_history %}
+                    <div class="report-card" style="border-top: 4px solid #6A64F1;">
+                        <div class="reportData-status">
+                            <div style="flex: 10;">
+                                <li><span style="font-weight: bold; color: #555;">Reporter Name: </span>{{ report.reporterNameReal }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Operation Line: </span>{{ report.operationLineNumber }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Machine Number: </span>{{ report.machineNumber }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Problem Category: </span>{{ report.problemCategory }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Problem Type: </span>{{ report.subCategory }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Sub Category: </span>{{ report.subCategoryForUser }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Rank: </span>{{ report.rank }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Description: </span>{{ report.problemDescription }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Created At: </span>{{ report.datetime }}</li>
+                                <li><span style="font-weight: bold; color: #555;">Due Date: </span>{{ report.dueDate }}</li>
+                                {% if report.sentBy %} 
+                                    <li><span style="font-weight: bold; color: #555;">Email Sent By: </span> {{ report.sentBy }}</li>
+                                {% endif %}
+                                {% if report.sentTo %} 
+                                    <li><span style="font-weight: bold; color: #555;">Email Sent To: </span> {{ report.sentTo }}</li>
+                                {% endif %}
+                                {% if report.solvedBy %} 
+                                    <li><span style="font-weight: bold; color: #555;">Issued Solved By: </span> {{ report.solvedBy }}</li>
+                                {% endif %}
+                                {% if report.rejectedBy %} 
+                                    <li><span style="font-weight: bold; color: #555;">Issued Rejected By: </span> {{ report.rejectedBy }}</li>
+                                {% endif %}
+                                {% if report.finishDate %} 
+                                    <li><span style="font-weight: bold; color: #555;">Finished Date: </span> {{ report.finishDate }}</li>
+                                {% endif %}
+                            </div>
+                            <div style="flex: 2; padding-top: 10px;">
+                                {% if report.status == '0' %}
+                                    <div class="pending-tag">Pending</div>
+                                {% elif report.status == '1' %}  
+                                    <div class="approved-tag">Approved</div>
+                                {% elif report.status == '2' %}  
+                                    <div class="validated">Validated</div>
+                                {% elif report.status == '3' %}  
+                                    <div class="email_sent">Email Sent</div>
+                                {% elif report.status == '4' %}  
+                                    <div class="solved">Solved</div>
+                                    <a style="font-size: 14px; margin: 10px 0px 0px 5px;" href="{% url 'solutionForReport' report.reportID %}">View Solution</a>
+                                {% elif report.status == '5' %}  
+                                    <div class="finished">Finished</div>
+                                    <a style="font-size: 14px; margin: 10px 0px 0px 5px;" href="{% url 'solutionForReport' report.reportID %}">View Solution</a>
+                                {% elif report.status == '6' %}  
+                                    <div class="rejected">Rejected</div>
+                                {% endif %}
+                                
+                            </div>
+                        </div>
+
+                        <li>
+                            <div class="carousel">
+                                <div class="carousel-images">
+                                    {% for image in report.images.all %}
+                                        <img src="{{ image.imageData.url }}" alt="Report Image" width="300px" height="350px" style="object-fit: cover;">
+                                    {% endfor %}
+                                </div>
+                                {% if report.images.all|length > 1 %}
+                                    <div class="carousel-buttons">
+                                        <button class="prev" onclick="moveCarousel(event, -1)">&#10094;</button>
+                                        <button class="next" onclick="moveCarousel(event, 1)">&#10095;</button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <li>No reports to display.</li>
+                {% endif %}
+                        
+            </ul>
+            
+            <div class="pagination">
+                {% if page_obj_history.has_previous %}
+                    <a href="?page_history=1&category={{ category }}&status={{ status }}">&laquo;</a>
+                {% endif %}
+                <div class="pagination-container">
+                    {% for num in page_obj_history.paginator.page_range %}
+                        {% if num == page_obj_history.number %}
+                            <a href="#" class="active">{{ num }}</a>
+                        {% else %}
+                            <a href="?page_history={{ num }}&category={{ category }}&status={{ status }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if page_obj_history.has_next %}
+                    <a href="?page_history={{ page_obj_history.paginator.num_pages }}&category={{ category }}&status={{ status }}">&raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="">
+        </div>
+    </div>
+        
+    {% endblock %}
+
+    <script>
+        function moveCarousel(event, direction) {
+            const carousel = event.target.closest('.carousel');
+            const imagesContainer = carousel.querySelector('.carousel-images');
+            const images = imagesContainer.children;
+            const imageWidth = images[0].clientWidth;
+            const maxTranslateX = -imageWidth * (images.length - 1);
+            let currentTranslateX = parseFloat(getComputedStyle(imagesContainer).transform.split(',')[4]) || 0;
+
+            currentTranslateX += direction * imageWidth;
+
+            if (currentTranslateX > 0) {
+                currentTranslateX = 0;
+            } else if (currentTranslateX < maxTranslateX) {
+                currentTranslateX = maxTranslateX;
+            }
+
+            imagesContainer.style.transform = `translateX(${currentTranslateX}px)`;
+        }
+
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the image and insert it inside the modal
+        var modalImg = document.getElementById("modalImage");
+
+        // When the user clicks on an image, open the modal
+        document.querySelectorAll('.carousel-images img').forEach(function(img) {
+            img.onclick = function(){
+                modal.style.display = "block";
+                modalImg.src = this.src;
+            }
+        });
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() { 
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+ 
+
+    </script>
+    <script>
+
+
+        function reloadPage() {
+            setInterval(() => {
+                location.reload();
+            }, 10000); // 10000 milliseconds = 10 seconds
+        }
+
+        // Call the function to start reloading the page
+        reloadPage();
+    </script>
+    
+</body>
+</html>
+

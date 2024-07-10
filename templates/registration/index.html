@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F5F8FF;
+            margin: 0;
+            padding: 0;
+            align-content: center;
+            margin: 80px auto;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            display: flex;
+        }
+
+        input[type="submit"], input[type="text"], input[type="password"]{
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #6A64F1;
+            color: white;
+            border: none;
+            cursor: pointer;
+            height: 40px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .admin-btn{
+            width: 100%; 
+            background-color: #4a47a3; 
+            margin-right: 5px; 
+            color: white; 
+            font-size: 18px; 
+            font-weight: bold; 
+            border-radius: 5px; 
+            height: 120px; 
+            border: 1px solid #4a47a3;
+        }
+        .user-btn{
+            width: 100%; 
+            background-color: #6A64F1; 
+            margin-left: 5px; 
+            color: white; 
+            font-size: 18px; 
+            font-weight: bold; 
+            border-radius: 5px; 
+            height: 120px; 
+            border: 1px solid #6A64F1;
+        }
+        @media only screen and (max-width: 370px){
+            .container {
+                display: block;
+                max-width: 200px;
+                padding: 20px;
+            }
+            .admin-btn{
+                margin-right: 0px;
+                margin-bottom: 5px; 
+            }
+            .user-btn{
+                margin-left: 0px;
+                margin-top: 5px; 
+            }
+        }
+    </style>
+</head>
+<body>
+  <h1 style="color: red;">SNSS</h1>  
+  <h2 style="color: #393680;">Maintainance Report System</h2>
+  <div class="container">
+        <div style="flex: 6;">
+            <a href="/admin/">
+                <input type="button" value="Admin" class="admin-btn">
+            </a>
+        </div>
+        <div style="flex: 6;">
+            <a href="{% url 'login' %}">
+                <input type="button" value="User" class="user-btn">
+            </a>    
+        </div>
+  </div>
+</body>
+</html>

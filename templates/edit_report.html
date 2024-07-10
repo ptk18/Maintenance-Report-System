@@ -1,0 +1,49 @@
+<!-- templates/edit_report.html -->
+
+<div class="container">
+    <div class="form-container">
+        <div style="border-left: 5px solid #6A64F1; padding-left: 5px;">
+            <h3>Edit Report</h3>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="reporterName">Reported by:</label>
+            <input type="text" id="reporterName" name="reporterName" value="{{ form.reporterName.value }}" readonly><br>
+
+            <label for="problemDescription">Problem description:</label>
+            <textarea id="problemDescription" name="problemDescription" rows="4" cols="50" required>{{ form.problemDescription.value }}</textarea><br>
+
+            <label for="operationLineNumber">Line number occurred:</label>
+            <select id="operationLineNumber" name="operationLineNumber" required>
+                <option value="MC-1" {% if form.operationLineNumber.value == 'MC-1' %}selected{% endif %}>MC-1</option>
+                <option value="MC-2" {% if form.operationLineNumber.value == 'MC-2' %}selected{% endif %}>MC-2</option>
+                <option value="MC-3" {% if form.operationLineNumber.value == 'MC-3' %}selected{% endif %}>MC-3</option>
+                <option value="MC-4" {% if form.operationLineNumber.value == 'MC-4' %}selected{% endif %}>MC-4</option>
+                <option value="MC-5" {% if form.operationLineNumber.value == 'MC-5' %}selected{% endif %}>MC-5</option>
+            </select><br>
+
+            <label for="problemCategory">Choose problem category:</label>
+            <select id="problemCategory" name="problemCategory" required>
+                <option value="Safety" {% if form.problemCategory.value == 'Safety' %}selected{% endif %}>Safety</option>
+                <option value="Maintenance" {% if form.problemCategory.value == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+                <option value="QA" {% if form.problemCategory.value == 'QA' %}selected{% endif %}>QA</option>
+                <option value="Engineering" {% if form.problemCategory.value == 'Engineering' %}selected{% endif %}>Engineering</option>
+                <option value="5S" {% if form.problemCategory.value == '5S' %}selected{% endif %}>5S</option>
+            </select><br>
+
+            <input type="submit" value="Update Report">
+        </form>
+    </div>
+</div>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>

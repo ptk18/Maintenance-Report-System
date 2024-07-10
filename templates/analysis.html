@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0;
+            /* margin:15px; */
+        }   
+        .container {
+            width: 100%;
+            margin: auto 0;
+        }
+        .average {
+            display: flex;
+            justify-content: space-around; /* Adjust as needed */
+        }
+        .average-reports {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .report-number {
+            font-size: 24px; /* Adjust as needed */
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        .charts {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 0;
+            width: 100%;
+            height: 78vh; 
+        }
+
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 5px;
+            padding: 0px 5px;
+        }
+        
+        .canvas-wrapper {
+            flex: 6;
+            display: flex;
+            justify-content: center; /* Center the canvas horizontally */
+            align-items: center; /* Center the canvas vertically */
+            overflow: hidden; /* Hide overflow to prevent the canvas from stretching too much */
+        }
+
+        .nested-canvases {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            padding: 0
+        }
+
+        canvas {
+          
+            max-height: 350px; /* Set a maximum height for the canvas elements */
+        }
+
+        
+        .nested-canvases canvas {
+            max-width: 200px; /* Adjust the max-width for nested canvases */
+            max-height: 200px; /* Set a maximum height for nested canvases */
+            margin-bottom: 10px; /* Add some space between nested canvases */
+        }
+
+        .nested-canvases canvas:last-child {
+            margin-bottom: 0;
+        }
+
+        .year-container{
+            position: absolute;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="year-container">
+            <select id="yearSelect">
+                <option value="none" selected>Select Year</option>
+            </select>
+        </div>
+        <div class="average">
+            <div class="average-reports">
+                <div id="totalReportsByYear">Total Reports (Year)</div>
+                <div class="report-number" id="reportYear">0</div>
+            </div>
+            <div class="average-reports">
+                <div id="totalReportsByMonth">Total Reports (Month)</div>
+                <div class="report-number" id="reportMonth">0</div>
+            </div>
+            <div class="average-reports">
+                <div id="totalReportsByDay">Total Reports (Day)</div>
+                <div class="report-number" id="reportDay">0</div>
+            </div>
+        </div>
+        
+        <div class="charts">
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="reportsDaily"></canvas>
+                </div>
+                
+                <div class="nested-canvases">
+                    <canvas id="categoriesChart"></canvas>
+                    <canvas id="statusesChart"></canvas>
+                    <h3 id='date' style="position: absolute; bottom: 0;  text-align: center;">Current Date</h3>
+                </div>
+                
+            </div>
+           
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="reportsMonthly"></canvas>
+                </div>
+                <div class="nested-canvases">
+                    <canvas id="categoriesChartOneMonth"></canvas>
+                    <canvas id="statusesChartOneMonth"></canvas>
+                    <h3 id='month' style="position: absolute; bottom: 0;  text-align: center;"></h3>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function fetchReportsByYear(year) {
+            const url = new URL(`/inform/reports_by_year/${year}/`, window.location.origin);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    document.getElementById('totalReportsByYear').textContent = `Total Reports (${data.year})`;
+                    document.getElementById('reportYear').textContent = `${data.total_reports}`;
+                })
+                .catch(error => console.error('Error fetching reports by year:', error));
+        }
+
+        function fetchReportsByYearMonth(year, month) {
+            const url = new URL(`/inform/reports_by_year_month/${year}/${month}/`, window.location.origin);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const date = new Date(data.year,data.month-1); // Using day 1 to avoid timezone issues
+
+                    // Define an array of month names
+                    const monthNames = [
+                    'January', 'February', 'March', 'April',
+                    'May', 'June', 'July', 'August',
+                    'September', 'October', 'November', 'December'
+                    ];
+
+                    // Format the date
+                    const formattedDate = `${monthNames[date.getMonth()]}`;
+                    document.getElementById('totalReportsByMonth').textContent = `Total Reports (${formattedDate})`;
+                    document.getElementById('reportMonth').textContent = `${data.total_reports}`;
+                })
+                .catch(error => console.error('Error fetching reports by year and month:', error));
+        }
+
+        function fetchReportsByYearMonthDate(year, month, day) {
+            const url = new URL(`/inform/reports_by_year_month_date/${year}/${month}/${day}/`, window.location.origin);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const date = new Date(data.year,data.month-1,data.day,1); // Using day 1 to avoid timezone issues
+
+                    // Define an array of month names
+                    const monthNames = [
+                    'January', 'February', 'March', 'April',
+                    'May', 'June', 'July', 'August',
+                    'September', 'October', 'November', 'December'
+                    ];
+
+                    // Format the date
+                    const formattedDate = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+                    document.getElementById('totalReportsByDay').textContent = `Total Reports (${formattedDate})`;
+                    document.getElementById('reportDay').textContent = `${data.total_reports}`;
+                })
+                .catch(error => console.error('Error fetching reports by year, month, and day:', error));
+        }
+        
+        let myChartMonth = null
+        let myChartDay = null
+        // These are for the line and bar charts
+        function fetchReportsDaily(year='null', month='null') {
+            if(year ==='null' && month == 'null'){
+                 year = new Date().getFullYear();
+                 month = new Date().getMonth() + 1;
+            }
+            
+            const url = new URL(`inform/reports_daily/${year}/${month}/`, window.location.origin) 
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('reportsDaily').getContext('2d');
+                    const labels = data.map(item => item.day);
+                    const counts = data.map(item => item.count);
+                    last = labels.length -1
+                    // after fetching change the pie to first day of month pie
+                    dateData = labels[last].split('-')  
+                    fetchReportsToday(dateData[0],dateData[1],dateData[2])
+
+                    // ALso change the date display on top right corner
+                    fetchReportsByYearMonthDate(dateData[0],dateData[1],dateData[2])
+                    const barData = {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Reports',
+                            data: counts,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    };
+
+                    const lineData = {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Reports (Line)',
+                            data: counts,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 1,
+                            type: 'line'
+                        }]
+                    };
+
+                    const options = {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0 // Display whole numbers on y-axis
+                                }
+                            },
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'day'
+                                }
+                            }
+                        }
+                    };
+
+                    const config = {
+                        type: 'bar',
+                        data: barData,
+                        options: options
+                    };
+
+                    if(myChartDay)
+                    {
+                        myChartDay.destroy()
+                    }
+                    // Create the chart
+                    myChartDay = new Chart(ctx, config);
+
+                    // Add the line dataset
+                    myChartDay.data.datasets.push(...lineData.datasets);
+                    myChartDay.update();
+                });
+        }
+
+        function fetchReportsMonthly() {
+            const year = document.getElementById('yearSelect').value;
+             // If the selected value is "none", set it to the current year
+            let url;
+            if (year === "none") {
+                const currentYear = new Date().getFullYear();
+                url = new URL(`/inform/reports_monthly/${currentYear}/`, window.location.origin);
+            } else {
+                url = new URL(`/inform/reports_monthly/${year}/`, window.location.origin);
+            }
+            // Get the selected year from the select box
+        
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('reportsMonthly').getContext('2d');
+                    const labels = data.map(item => item.month);
+                    const counts = data.map(item => item.count);
+                    const barData = {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Reports',
+                            data: counts,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    };
+
+                    const lineData = {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Reports (Line)',
+                            data: counts,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 1,
+                            type: 'line'
+                        }]
+                    };
+
+                    const options = {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0 // Display whole numbers on y-axis
+                                }
+                            },
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'month'
+                                }
+                            }
+                        }
+                    };
+
+                    const config = {
+                        type: 'bar',
+                        data: barData,
+                        options: options
+                    };
+
+                    // Create the charts
+                    myChartMonth = new Chart(ctx, config);
+
+                    // Add the line dataset
+                    myChartMonth.data.datasets.push(...lineData.datasets);
+                    myChartMonth.update();
+                });
+                
+
+        }
+        
+        let categoriesChartOneDay = null
+        let statusesChartOneDay = null
+        // This is for the pie charts
+        function fetchReportsToday(year, month, day){
+            const url = new URL(`inform/reports_today/${year}/${month}/${day}/`, window.location.origin) 
+            // Create a Date object
+            const date = new Date(year,month-1,day, 1); // Using day 1 to avoid timezone issues
+
+            // Define an array of month names
+            const monthNames = [
+            'January', 'February', 'March', 'April',
+            'May', 'June', 'July', 'August',
+            'September', 'October', 'November', 'December'
+            ];
+
+            // Format the date
+            const formattedDate = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+
+            // Assign the formatted date to the innerHTML of an element
+            document.getElementById('date').innerHTML = formattedDate;
+                                // document.getElementById('month').innerHTML = ''
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                        // Destroy the existing charts if they exist
+                        if (categoriesChartOneDay) {
+                            categoriesChartOneDay.destroy();
+                        }
+                        if (statusesChartOneDay) {
+                            statusesChartOneDay.destroy();
+                        }
+                         // Pie chart for categories
+                         categoriesChartOneDay = new Chart(document.getElementById('categoriesChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: data.categories_labels,
+                            datasets: [{
+                                label: 'Reports by Category',
+                                data: data.categories_counts,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(54, 162, 235, 0.7)',
+                                    'rgba(255, 206, 86, 0.7)',
+                                    'rgba(75, 192, 192, 0.7)',
+                                    'rgba(153, 102, 255, 0.7)',
+                                    'rgba(255, 159, 64, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right', // Change to 'right' or 'bottom' as needed
+                                    labels: {
+                                        boxWidth: 10, // Adjust the box width
+                                        padding: 10 // Adjust the padding between labels
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const label = tooltipItem.label || '';
+                                            const value = tooltipItem.raw;
+                                            const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(2);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                            },
+                                datalabels: {
+                                    formatter: (value, ctx) => {
+                                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    return total.toString(); // Display total amount as the label
+                                },
+                                    color: '#fff',
+                                    labels: {
+                                        title: {
+                                            font: {
+                                                weight: 'bold'
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                        
+                        },
+                        
+                    }
+                        
+                });
+                const statusMapping = {
+                    0: 'Pending',
+                    1: 'Approved',
+                    2: 'Sent Mail',
+                    3: 'Solved',
+                    4: 'Rejected'
+                };
+                // Map status numbers to status texts
+                const statusLabels = data.statuses_labels.map(label => statusMapping[label]);
+                    // Pie chart for statuses
+                    statusesChartOneDay = new Chart(document.getElementById('statusesChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: statusLabels,
+                            datasets: [{
+                                label: 'Reports by Status',
+                                data: data.statuses_counts,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(54, 162, 235, 0.7)',
+                                    'rgba(255, 206, 86, 0.7)',
+                                    'rgba(75, 192, 192, 0.7)',
+                                    'rgba(153, 102, 255, 0.7)',
+                                    'rgba(255, 159, 64, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right', // Change to 'right' or 'bottom' as needed
+                                    labels: {
+                                        boxWidth: 10, // Adjust the box width
+                                        padding: 10 // Adjust the padding between labels
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const label = tooltipItem.label || '';
+                                            const value = tooltipItem.raw;
+                                            const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(2);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                    });
+                })
+        }
+       
+        // Keep references to the charts
+        let categoriesChartOneMonth = null;
+        let statusesChartOneMonth = null;
+        function fetchReportsSpecifiedMonth(currentYear, currentMonth) {
+                const url = new URL(`inform/reports_currentMonth/${currentYear}/${currentMonth}/`, window.location.origin);
+
+                // Create a Date object
+                const date = new Date(currentYear, currentMonth-1, 1); // Using day 1 to avoid timezone issues
+
+                // Define an array of month names
+                const monthNames = [
+                'January', 'February', 'March', 'April',
+                'May', 'June', 'July', 'August',
+                'September', 'October', 'November', 'December'
+                ];
+
+                // Format the date
+                const formattedDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+
+                // Assign the formatted date to the innerHTML of an element
+                document.getElementById('month').innerHTML = formattedDate;
+                                    // document.getElementById('month').innerHTML = ''
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Destroy the existing charts if they exist
+                        if (categoriesChartOneMonth) {
+                            categoriesChartOneMonth.destroy();
+                        }
+                        if (statusesChartOneMonth) {
+                            statusesChartOneMonth.destroy();
+                        }
+                        // Pie chart for categories
+                        const colors = [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(153, 102, 255, 0.5)',
+                            'rgba(255, 159, 64, 0.5)'
+                        ];
+                        
+                        categoriesChartOneMonth = new Chart(document.getElementById('categoriesChartOneMonth'), {
+                            type: 'pie',
+                            data: {
+                                labels: data.categories_labels,
+                                datasets: [{
+                                    label: 'Reports by Category',
+                                    data: data.categories_counts,
+                                    backgroundColor: colors,
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderColor: colors.map(color => color.replace('0.7', '1').replace('0.5', '1')),
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right', // Change to 'right' or 'bottom' as needed
+                                    labels: {
+                                        boxWidth: 10, // Adjust the box width
+                                        padding: 10 // Adjust the padding between labels
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const label = tooltipItem.label || '';
+                                            const value = tooltipItem.raw;
+                                            const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(2);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                        });
+                        
+                        const statusMapping = {
+                            0: 'Pending',
+                            1: 'Approved',
+                            2: 'Sent Mail',
+                            3: 'Solved',
+                            4: 'Rejected'
+                        };
+                        // Map status numbers to status texts
+                        const statusLabels = data.statuses_labels.map(label => statusMapping[label]);
+                        // Pie chart for statuses
+                        statusesChartOneMonth = new Chart(document.getElementById('statusesChartOneMonth'), {
+                            type: 'pie',
+                            data: {
+                                labels: statusLabels,
+                                datasets: [{
+                                    label: 'Reports by Status',
+                                    data: data.statuses_counts,
+                                    backgroundColor: colors,
+                                    borderColor: colors.map(color => color.replace('0.7', '1').replace('0.5', '1')),
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right', // Change to 'right' or 'bottom' as needed
+                                    labels: {
+                                        boxWidth: 10, // Adjust the box width
+                                        padding: 10 // Adjust the padding between labels
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const label = tooltipItem.label || '';
+                                            const value = tooltipItem.raw;
+                                            const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(2);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                            }
+                            }
+                        }
+                    }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching reports:', error);
+                    });
+        }
+       
+        // This is for the year selection options
+        function fetchYears() {
+            fetch('/inform/get_years/')
+                .then(response => response.json())
+                .then(data => {
+                    const yearSelect = document.getElementById('yearSelect');
+                    data.years.forEach(year => {
+                        const option = document.createElement('option');
+                        option.value = year;
+                        option.textContent = year;
+                        yearSelect.appendChild(option);
+                    });
+                });
+        }   
+
+        // Event listener for year selection change
+        document.getElementById('yearSelect').addEventListener('change', function() {
+            // Get the selected year from the select box
+            const year = this.value;
+            if (year === 'none' || year === new Date().getFullYear().toString()) {
+                window.location.reload()}
+            else {
+                url = new URL(`/inform/reports_monthly/${year}/`, window.location.origin);
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('reportsMonthly').getContext('2d');
+                    const labels = data.map(item => item.month);
+                    const counts = data.map(item => item.count);
+                    
+                    const barData = {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Reports',
+                            data: counts,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    };
+
+                    const lineData = {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Reports (Line)',
+                            data: counts,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 1,
+                            type: 'line'
+                        }]
+                    };
+
+                    const options = {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0 // Display whole numbers on y-axis
+                                }
+                            },
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'month'
+                                }
+                            }
+                        }
+                    };
+
+                    const config = {
+                        type: 'bar',
+                        data: barData,
+                        options: options
+                    };
+
+                    // Destroy the existing chart if it exists
+                    if (myChartMonth) {
+                        myChartMonth.destroy();
+                    }
+                    // Create the charts
+                    myChartMonth = new Chart(ctx, config);
+                    // Add the line dataset
+                    myChartMonth.data.datasets.push(...lineData.datasets);
+                    myChartMonth.update();
+                    
+            
+                    // Fetch daily reports based on the first month
+                    const firstMonth = labels[0]; // Assuming labels are sorted
+                    if (firstMonth) {
+                        const [fetchYear, fetchMonth] = firstMonth.split('-');
+                        // Update the Year count view 
+                        fetchReportsByYear(fetchYear)
+                        // Update the Month Count View
+                        fetchReportsByYearMonth(fetchYear,fetchMonth)
+
+                        const dailyUrl = new URL(`/inform/reports_daily/${fetchYear}/${fetchMonth}/`, window.location.origin);
+
+                        fetch(dailyUrl)
+                            .then(response => response.json())
+                            .then(data => {
+                                const ctx = document.getElementById('reportsDaily').getContext('2d');
+                                const labels = data.map(item => item.day);
+                                const counts = data.map(item => item.count);
+
+                                const barData = {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Number of Reports',
+                                        data: counts,
+                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                        borderWidth: 1
+                                    }]
+                                };
+
+                                const lineData = {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Number of Reports (Line)',
+                                        data: counts,
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        borderWidth: 1,
+                                        type: 'line'
+                                    }]
+                                };
+
+                                const options = {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                precision: 0 // Display whole numbers on y-axis
+                                            }
+                                        },
+                                        x: {
+                                            type: 'time',
+                                            time: {
+                                                unit: 'day'
+                                            }
+                                        }
+                                    }
+                                };
+
+                                const config = {
+                                    type: 'bar',
+                                    data: barData,
+                                    options: options
+                                };
+
+                                if (myChartDay) {
+                                    myChartDay.destroy();
+                                }
+                                // Create the chart
+                                myChartDay = new Chart(ctx, config);
+
+                                // Add the line dataset
+                                myChartDay.data.datasets.push(...lineData.datasets);
+                                myChartDay.update();
+                            })
+                            .catch(error => {
+                                console.error('Error fetching daily reports:', error);
+                            });
+                            // Fetch the pie data for Month
+                        fetchReportsSpecifiedMonth(fetchYear,fetchMonth)
+
+                        // If change year, display the month (text) on the pie chart
+                        const url = new URL(`inform/reports_daily/${fetchYear}/${fetchMonth}/`, window.location.origin) 
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                const ctx = document.getElementById('reportsDaily').getContext('2d');
+                                const labels = data.map(item => item.day);
+                                splitDate = labels[0].split('-')
+                                year1 = splitDate[0]
+                                month = splitDate[1]
+                                day = splitDate[2]
+
+                                //Update the date count view 
+                                fetchReportsByYearMonthDate(year1,month,day)
+                                // Create a Date object
+                                const date = new Date(year1,month-1,day, 1); // Using day 1 to avoid timezone issues
+
+                                // Define an array of month names
+                                const monthNames = [
+                                'January', 'February', 'March', 'April',
+                                'May', 'June', 'July', 'August',
+                                'September', 'October', 'November', 'December'
+                                ];
+
+                                // Format the date
+                                const formattedDate = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+
+                                // Assign the formatted date to the innerHTML of an element
+                                document.getElementById('date').innerHTML = formattedDate;
+
+                                // If change year display the chart on day Pie
+                                fetchReportsToday(year1,month,day)
+                            });
+                    }
+                    
+                    
+
+                })
+                .catch(error => {
+                    console.error('Error fetching monthly reports:', error);
+                });
+                
+            
+        });
+
+        // Add click event listener to the canvas
+        // Add event listener to the chart's canvas
+        document.getElementById('reportsDaily').addEventListener('click', function(event) {
+            const activePoints = myChartDay.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+            console.log(activePoints)
+            if (activePoints.length > 0) {
+                const firstPoint = activePoints[0];
+                const label = myChartDay.data.labels[firstPoint.index];
+                splitLabel = label.split('-')
+                fetchReportsToday(splitLabel[0],splitLabel[1], splitLabel[2])
+                fetchReportsByYearMonthDate(splitLabel[0],splitLabel[1], splitLabel[2])
+            }
+        });
+
+        // Add click event listener to the canvas
+        // Add event listener to the chart's canvas
+        document.getElementById('reportsMonthly').addEventListener('click', function(event) {
+            const activePoints = myChartMonth.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+            console.log(activePoints)
+            if (activePoints.length > 0) {
+                const firstPoint = activePoints[0];
+                const label = myChartMonth.data.labels[firstPoint.index];
+                splitLabel = label.split('-')
+                fetchReportsSpecifiedMonth(splitLabel[0],splitLabel[1])
+                fetchReportsByYearMonth(splitLabel[0],splitLabel[1])
+                fetchReportsDaily(splitLabel[0],splitLabel[1])
+                console.log('Bar clicked:', label);
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth()+1;
+            const currentDate = new Date().getDate();
+            fetchYears();   
+            fetchReportsDaily();
+            fetchReportsMonthly();
+            fetchReportsToday(currentYear,currentMonth, currentDate);
+            fetchReportsSpecifiedMonth(currentYear,currentMonth);
+            fetchReportsByYear(currentYear)
+            fetchReportsByYearMonth(currentYear,currentMonth)
+            fetchReportsByYearMonthDate(currentYear,currentMonth,currentDate)
+          
+        });
+    </script>
+</body>
+</html>

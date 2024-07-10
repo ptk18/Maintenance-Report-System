@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Details For Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333333;
+        }
+        p {
+            color: #555555;
+            line-height: 1.5;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #007bff;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .pending-tag {
+            width: 100px; 
+            height: 25px; 
+            font-size: 14px;
+            background-color: yellow;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .approved-tag {
+            width: 100px; 
+            height: 25px; 
+            background-color: orange;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        .validated {
+            width: 100px; 
+            height: 25px; 
+            background-color: #E74133;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .email_sent {
+            width: 100px; 
+            height: 25px; 
+            background-color: #4470b1;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .solved {
+            width: 100px; 
+            height: 25px; 
+            font-size: 14px;
+            background-color: #17BF0B;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .finished {
+            width: 100px; 
+            height: 25px; 
+            background-color: #2A9D8F;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .rejected {
+            width: 100px; 
+            height: 25px; 
+            font-size: 14px;
+            background-color:  #7C7C7C;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Report Details For Users</h2>
+        {% if report.status == '0' %}
+            <p class="pending-tag">Pending</p>
+        {% elif report.status == '1' %}  
+            <p class="approved-tag">Approved</p>
+        {% elif report.status == '2' %}  
+            <p class="validated">Validated</p>
+        {% elif report.status == '3' %}  
+            <p class="email_sent">Email Sent</p>
+        {% elif report.status == '4' %}  
+            <p class="solved">Solved</p>
+        {% elif report.status == '5' %}  
+            <p class="finished">Finished</p>
+        {% elif report.status == '6' %}  
+            <p class="rejected">Rejected</p>
+        {% endif %}
+            
+        <p><strong>Reporter Name:</strong> {{ report.reporterName }}</p>
+        <p><strong>Operation Line:</strong> {{ report.operationLineNumber }}</p>
+        <p><strong>Problem Category:</strong> {{ report.problemCategory }}</p>
+        <p><strong>Problem Sub Category:</strong> {{ report.subCategoryForUser }}</p>
+        {% if report.subCategory %} <p><strong>Problem Type:</strong> {{ report.subCategory }}</p> {% endif %}
+        <p><strong>Rank:</strong> {{ report.rank }}</p>
+        <p><strong>Description:</strong> {{ report.problemDescription }}</p>
+        <p><a href="http://snss-djwa.asia.ad.nsk.com/{% url 'login' %}" class="btn">Click here to report back the details of issues</a></p>
+    </div>
+</body>
+</html>
+

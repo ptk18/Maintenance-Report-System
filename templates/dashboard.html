@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    {% load static %}
+    <script src="{% static 'admin/js/chart.js' %}"></script>
+    <script src="{% static 'admin/js/chartjs-adapter-date-fns.bundle.min.js' %}"></script>
+    <!-- <script src="{% static 'admin/js/chartjs-plugin-datalabels@2.0.0' %}"></script> -->
+
+    <style>
+        body{
+            margin: 0;
+            font-family: Arial, sans-serif;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+        }
+        .factory-container{
+            width: 75%;
+            display: flex;
+            height: 90vh;
+        }
+        
+        .details{
+            width:25%;
+            border-left: 2px solid rgba(0, 0, 0, 0.37);
+            padding: 10px;
+            height: 90vh;
+        }
+        .factories-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+            align-items: center;
+            padding: 0px 5px;
+        }
+
+        .factories {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            gap: 3px;
+            width: 100%;
+            max-width: min-content;
+            font-size: 14px;
+
+        }
+        .factory-1{
+            flex: 6;
+            max-width: max-content;
+        }
+        .factory-2{
+            flex: 6;
+            max-width: max-content;
+
+        }
+        .factory-1, .factory-2 {
+            margin-top: -5px;
+            height: calc(100vh - 250px); /* Adjust the 150px to fit your needs */
+        }
+
+        .grid-item{
+            display: flex;
+            border: 2px solid rgba(0, 0, 0, 0.377);
+            border-radius: 3px;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 4px 10px 14px 0px rgba(0,0,0,0.1);
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .PA-1 {
+            grid-column: span 2;
+            grid-row: span 5; /* Span 5 rows */
+        }
+        .MC-13, .MC-8, .MC-9{
+            grid-column: 6;
+            grid-column: span 2; 
+        }
+        .MC-3{
+            grid-column: 6;
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+        .MC-18 {
+            grid-row: span 4;
+        }
+
+        .BA-1-2{
+            grid-row: span 3;
+        }
+        .JA-2-Upper{
+            grid-row: span 3;
+        }
+        .dojos{
+            grid-row: span 5;
+            display: flex;
+            flex-direction: column;
+        }
+        .dojos .portion {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px dotted black;
+            margin: 0;
+            width: 100%;
+
+        }
+        .MC-1-Upper{
+            grid-row: span 3;
+        }
+        .MC-7, .MC-19, .MC-1-Column, .CA-6, .CA-1, .center-board, .CA-3-4{
+            grid-row: span 2;
+        }
+        .MC-2{
+            grid-column: 1;
+            grid-column: span 2; 
+            grid-row: span 2; 
+        }
+        .CA-5{
+            grid-row: span 3;
+        }
+        .warehouse{
+            grid-column: 2;
+            grid-column: span 3; 
+            grid-row: span 5;
+        }
+        .store{
+            grid-column: 5;
+            grid-column: span 3; 
+            grid-row: span 5;
+        }
+        .MC-22, .MC-17, .CA-7{
+            grid-column: 2;
+            grid-column: span 3; 
+        }
+        .MC-16, .MC-10, .MC-15, .MC-12{
+            grid-column: 5;
+            grid-column: span 3; 
+        }
+        .EAs{
+            grid-column: 2;
+            grid-column: span 4; 
+            grid-row: span 2;
+            display: flex;
+            flex-direction: column;
+        }
+        .EAs .portion {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px dotted black;
+            margin: 0;
+            width: 100%;
+
+        }
+        .JA-7-2{
+            grid-column: 3;
+            grid-column: span 2; 
+        }
+        .MC-11{
+            grid-column: 7;
+            grid-column: span 2; 
+        }
+        .APTC, .electric{
+            grid-row: span 2;
+        }
+        .general-1{
+            grid-row: span 13;
+        }
+        .general-3{
+            grid-column: 2;
+            grid-column: span 7; 
+            background: repeating-linear-gradient(
+                45deg,
+                yellow,
+                yellow 10px,
+                black 10px,
+                black 20px
+            );
+        }
+        .general-2{
+            grid-column: span 7; 
+        }
+        .general-6{
+            grid-column: span 7; 
+        }
+        .general-area{
+            grid-column: span 5; 
+        }
+        .general-5{
+            grid-row: span 13;
+        }
+        .factory-hall{
+            grid-column: 3;
+            grid-column: span 2; 
+        }
+        .entrance-2, .entrance-1{
+            grid-column: span 2; 
+        }
+        .car-park-1{
+            grid-column: 4;
+            grid-column: span 5; 
+        }
+        .motorcycle-park{
+            grid-row: span 2;
+            
+        }
+        .football-field{
+            grid-row: span 2;
+        }
+        .car-park-2{
+            grid-row: span 5;
+            writing-mode: vertical-rl;
+            text-orientation: sideways;
+        }
+        .oil-store{
+            grid-row: span 3;
+        }
+        .calibrate-room{
+            grid-row: span 2;
+        }
+        .guest-4{
+            grid-column: 2;
+            grid-column: span 2;  
+        }
+
+        .training{
+            grid-column: 4;
+            grid-column: span 2;  
+        }
+        .waste-water-treatment{
+            grid-column: span 2;  
+        }
+        .blank-factory-1{
+            grid-column: 6;
+            grid-column: span 2;  
+        }
+        .chemical-room, .disposal-room, .locker,.transformers{
+            grid-row: span 2;
+        }
+        .car-park-3{
+            grid-row: span 6;
+            writing-mode: vertical-rl;
+            text-orientation: sideways;
+        }
+        .canteen{
+            grid-row: span 3;
+        }
+
+        .factory-title {
+            margin-top: 10px;
+            margin-bottom: -10px;
+            text-align: center;
+        }
+        .striped-div {
+            writing-mode: vertical-rl;
+            text-orientation: sideways;
+            padding-right: 35%;
+        }
+        .warehouse{
+            font-weight: bolder;
+            grid-row: span 4;
+        }
+        .store{
+            font-weight: bolder;
+            grid-row: span 4;
+        }
+
+        .general{
+            background-color: rgba(173, 216, 230, 0.329);
+        }
+        .factory{
+            background-color: rgba(250, 250, 113, 0.171);
+        }
+        .office{
+            background-color: rgba(255, 182, 193, 0.281);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4a47a3;
+            color: white;
+            padding: 4px 8px;
+            margin:0;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar .back-button, .navbar .toggle-button {
+            background-color: #444;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .navbar .title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 20px;
+            padding: 3px;
+            font-weight: bold;
+        }
+        .snss-title{
+            flex-grow: 1;
+            text-align: center;
+            font-size: 22px;
+            color: red;
+            font-weight: bold;
+            padding: 3px;
+        }
+
+        .wrapper {
+            display: flex;
+            padding: 2px;
+            background-color: #F5F8FF ;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .custom-input {
+            flex-grow: 1;
+        }
+
+        .custom-input input[type=radio] {
+            display: none;
+        }
+
+        .custom-input label {
+            display: block;
+            padding: 6px 8px;
+            color: #6A64F1;
+            text-align: center;
+            transition : all .4s 0s ease;
+            font-weight: bold;
+        }
+
+        .custom-input input[type=radio]:checked + label {
+            background-color: #6A64F1;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .legend{
+            display: flex;
+        }
+        .legend1 {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            width: fit-content;
+            margin-top: -20px;
+            
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend2 {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            width: fit-content;
+            margin-top: -20px;
+        }
+
+        .legend2-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .color-box {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #000;
+        }
+        .color-box2 {
+            width: 12px;
+            height: 12px;
+
+        }
+
+        .color1 {
+            background-color: rgba(173, 216, 230, 0.438); /* general */
+        }
+
+        .color2 {
+            background-color: rgba(255, 182, 193, 0.493); /* office */
+        }
+
+        .color3 {
+            background-color: rgba(250, 250, 113, 0.233);
+        }
+        
+        .color4 {
+            background-color: yellow;
+        }
+        
+        .color5 {
+            background-color: orange;
+        }
+        
+        .color6 {
+            background-color: #E74133;
+        }
+        
+        .color7 {
+            background-color: #4470b1;
+        }
+        
+        .color8 {
+            background-color: #17BF0B;
+        }
+        
+        .color9 {
+            background-color: #2A9D8F;
+        }
+        
+        .color10 { 
+            background-color: #7C7C7C;
+        }
+
+        .description {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .back{
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .category-title{
+            padding-left: 5px; 
+            background-color: #cddbfa83;
+            color: #6A64F1;
+            height: 38px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        #reports-container {
+            display: block;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            margin: 0 auto;
+            height: 75vh;
+
+        }
+        #reports-container h3 {
+            padding-left: 5px; 
+            background-color: #cddbfa83;
+            color: #6A64F1;
+            height: 38px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-top: 0px;
+        }
+        .report {
+            border: 1px solid #ccc;
+            border-left-width: 3px;
+            border-left-color: #6A64F1;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 0px 8px 8px 0px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none;
+            box-sizing: border-box;
+            height: 90px;
+        }
+        .report h4{
+            margin-top: -5px;
+            margin-bottom: 0px;
+            color: #555;
+        }
+        .report p{
+            margin: 2px;
+            font-size: 13px;
+        }
+        .report.active {
+            display: block;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pending-tag {
+            width: 80px; 
+            height: 20px; 
+            font-size: 14px;
+            background-color: yellow;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .approved-tag {
+            width: 80px; 
+            height: 20px; 
+            background-color: orange;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        .validated {
+            width: 80px; 
+            height: 20px; 
+            background-color: #E74133;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .email_sent {
+            width: 80px; 
+            height: 20px; 
+            background-color: #4470b1;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .solved {
+            width: 80px; 
+            height: 20px; 
+            font-size: 14px;
+            background-color: #17BF0B;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .finished {
+            width: 80px; 
+            height: 20px; 
+            background-color: #2A9D8F;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .rejected {
+            width: 80px; 
+            height: 20px; 
+            font-size: 14px;
+            background-color:  #7C7C7C;
+            align-content: center;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+        }
+
+
+        .slideshow-controls {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            transform: translateY(-50%);
+            padding: 0 10px;
+            pointer-events: none; /* Allow clicking through to the reports */
+
+        }
+        .slideshow-controls button {
+            color: black;
+            padding: 20px 25px;
+            font-size: 44px;
+            border: none;
+            background: none;
+            pointer-events: auto; /* Enable clicking on the buttons */
+        }
+        .slideshow-controls button:focus {
+            outline: none;
+        }
+
+        /* CSS for status circles */
+        .status-circle {
+            width: 25px; /* Adjusted to accommodate text */
+            height: 25px; /* Adjusted to accommodate text */
+            border-radius: 50%;
+            position: absolute;
+            top: 0; /* Adjust as needed */
+            right: 0; /* Adjust as needed */
+            margin: 2px; /* Adjust as needed */
+            z-index: 10; /* Ensure it's above other elements */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white; /* Text color */
+            font-weight: bold;
+            font-size: 12px; /* Adjust as needed */
+        }
+
+        .status-circle.blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Modal CSS */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 11;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            font-size: 14px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #aaa;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-problem, .modal-solution {
+            width: 50%;
+            display: inline-block;
+            vertical-align: top;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .modal-problem {
+            border-right: 1px solid #ccc;
+        }
+
+        .modal-solution {
+            padding-left: 20px;
+        }
+        .modal-content{
+            display: flex;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #6A64F1;
+        }
+
+        .modal-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .modal-content ul li {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .modal-content ul li:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-content ul li strong {
+            color: #555;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Adjust as needed */
+            margin: auto;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .carousel-images {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-images img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .carousel-buttons {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+
+        .carousel-buttons button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .carousel-buttons button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+
+        .container-chart {
+            width: 100%;
+            margin: auto 0;
+        }
+        .average {
+            display: flex;
+            justify-content: space-around; /* Adjust as needed */
+        }
+        .average-reports {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .report-number {
+            font-size: 24px; /* Adjust as needed */
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        .charts {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 0;
+            width: 100%;
+            height: 75vh; 
+        }
+
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 5px;
+            padding: 0px 5px;
+        }
+        
+        .canvas-wrapper {
+            flex: 6;
+            display: flex;
+            justify-content: center; /* Center the canvas horizontally */
+            align-items: center; /* Center the canvas vertically */
+            overflow: hidden; /* Hide overflow to prevent the canvas from stretching too much */
+        }
+
+        .nested-canvases {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            padding: 0
+        }
+
+        canvas {
+          
+            max-height: 350px; /* Set a maximum height for the canvas elements */
+        }
+
+        
+        .nested-canvases canvas {
+            max-width: 200px; /* Adjust the max-width for nested canvases */
+            max-height: 200px; /* Set a maximum height for nested canvases */
+            margin-bottom: 10px; /* Add some space between nested canvases */
+        }
+
+        .nested-canvases canvas:last-child {
+            margin-bottom: 0;
+        }
+
+        .year-container{
+            position: absolute;
+        }
+        .overdue{
+            background-color: #E74133;
+            padding: 1px;
+            border-radius: 5px;
+            font-size: 10px;
+        }
+        .on-time{
+            background-color: #17BF0B;
+            padding: 1px;
+            border-radius: 5px;
+            font-size: 10px;
+        }
+        .overdue-finished{
+            background-color: orange;
+            padding: 1px;
+            border-radius: 5px;  
+            font-size: 10px;
+        }
+        .rank-style{
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            position: relative;
+            margin-left: auto;
+
+        }
+        .rank-style-p{
+            position: absolute;
+            padding-left: 0.3em;
+            font-weight: bold;
+        }
+
+
+
+
+
+
+        @media (max-width: 768px) {
+            .container {
+                display: block;
+                width: 100%;
+            }
+            .factory-container {
+                width: 100%;
+                display: block;
+                margin-right: 0px;
+                height: auto;
+            }
+            .factories-wrapper {
+                width: 100%;
+                padding-bottom: 20px;
+                height: calc(100vh - 20px);
+                align-items: center;
+            }
+            .details {
+                width: 100%;
+                border-left: none;
+                margin-left: 0px;
+                padding: 3px;
+            }
+            .factory-1, .factory-2 {
+                height: calc(100vh - 50px);
+            }
+            .factory-2{
+                padding-right: 0;
+                width: min-content;
+            }
+            .factory-1{
+                padding-left: 0;
+            }
+            .grid-item{
+                font-size: 8px;
+
+            }
+            .navbar {
+                width: 100%;
+                margin-right: 0px;
+            }
+
+            .navbar .back-button, .navbar .toggle-button {
+                font-size: 12px;
+            }
+
+            .navbar .title {
+                font-size: 14px;
+            }
+            .snss-title{
+                font-size: 14px;
+            }
+            .back{
+                font-size: 12px;
+            }
+            .wrapper {
+                padding: 0px;
+                font-size: 12px;
+            }
+            #legend{
+                display: none;
+
+            }
+            .legend{
+                display: none;
+            }
+            #reports-container {
+                height: 85vh;
+
+            }
+            .custom-input{
+                margin-right: 0px;
+            }
+            .custom-input label {
+                padding: 2px 2px;
+            }
+
+        }
+        @media (min-width: 1440px) { 
+            /* hi-res laptops and desktops */ 
+            #reports-container {
+                height: 80vh;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{% url 'login' %}" style="color: white;" class="back">Login</a>
+        <div style="display: flex;">
+            <div class="snss-title">SNSS</div>
+            <div class="title">Notifying Dashboard</div>
+        </div>
+        <div class="wrapper">
+            <div class="custom-input">
+              <input type="radio" id="layout" name="dashboard-type" onclick="toggleContent()" checked>
+              <label for="layout" >Layout</label>
+            </div>
+            <div class="custom-input">
+              <input type="radio" id="charts" name="dashboard-type" onclick="toggleContent()">
+              <label for="charts">Charts</label>
+            </div>
+        </div>
+    </div>
+    <div  id="content1">
+        <div class="container">
+            <div class="factory-container">
+                <div class="factories-wrapper">
+                    <h3 class="factory-title">Factory 2</h3>
+                    <div class="factories factory-2">
+                        <div class="grid-item entrance-2 general" id="Entrance_2">Entrance 2</div>
+                        <div class="grid-item guard-house-2 general" id="Guard_House_2">Guard House 2</div>
+                        <div class="grid-item car-park-1 general" id="Car_Park_F2_1">Car Park / 1</div>
+                        <div class="grid-item general" id="general"></div>
+                        <div class="grid-item meeting-1 office" id="Meeting_Room_1">Meeting Room 1</div>
+                        <div class="grid-item meeting-2 office" id="Meeting_Room_2">Meeting Room 2</div>
+                        <div class="grid-item meeting-3 office" id="Meeting_Room_3">Meeting Room 3</div>
+                        <div class="grid-item meeting-4 office" id="Meeting_Room_4">Meeting Room 4</div>
+                        <div class="grid-item meeting-5 office" id="Meeting_Room_5">Meeting Room 5</div>
+                        <div class="grid-item meeting-6 office" id="Meeting_Room_6">Meeting Room 6</div>
+                        <div class="grid-item cctv office" id="CCTV_Room">CCTV Room</div>
+                        <div class="grid-item motorcycle-park general" id="Motorcycle_Park">Motorcycle Park</div>
+                        <div class="grid-item office" id="Toilets_OF2_2">Toilets/2</div>
+                        <div class="grid-item factory-hall office" id="Factory_Hall">Factory Hall</div>
+                        <div class="grid-item meeting-7 office" id="Meeting_Room_7">Meeting Room 7</div>
+                        <div class="grid-item AC office" id="AC">AC</div>
+                        <div class="grid-item Adm office" id="Adm">Adm</div>
+                        <div class="grid-item office" id="Toilets_OF2_1">Toilets/1</div>
+                        <div class="grid-item factory" id="Toilets_F2_1">Toilets/1</div>
+                        <div class="grid-item crane factory" id="Crane">Crane</div>
+                        <div class="grid-item end-mode factory" id="End_Mode">End Mode</div>
+                        <div class="grid-item rest-area factory" id="Rest_Area_F2">Rest Area</div>
+                        <div class="grid-item MC-12 factory" id="MC-12-1">MC-12 / 1</div>
+                        <div class="grid-item car-park-2 general" id="Car_Park_F2_2">Car Park / 2</div>
+                        <div class="grid-item APTC factory" id="APTC">APTC</div>
+                        <div class="grid-item MC-17 factory" id="MC-17">MC-17</div>
+                        <div class="grid-item MC-12-2 factory" id="MC-12-2">MC-12 / 2</div>
+                        <div class="grid-item MC-11 factory" id="MC-11">MC-11</div>
+                        <div class="grid-item CA-7 factory" id="CA-7">CA-7</div>
+                        <div class="grid-item MC-15 factory" id="MC-15">MC-15</div>
+                        <div class="grid-item electric factory" id="Electric">Electric</div>
+                        <div class="grid-item empty factory" id="empty"></div>
+                        <div class="grid-item JA-7-2 factory" id="JA-7">JA-7</div>
+                        <div class="grid-item MC-10 factory" id="MC-10">MC-10</div>
+                        <div class="grid-item EAs factory" id="EAs">
+                            <div class="portion portion-1" id="EA-7">EA-7</div>
+                            <div class="portion portion-2" id="EA-2-6">EA-2, EA-6</div>
+                            <div class="portion portion-3" id="EA-3">EA-3</div>
+                        </div>
+                        <div class="grid-item EA-5 factory" id="EA-5">EA-5</div>
+                        <div class="grid-item MC-5 factory" id="MC-5-1">MC-5 / 1</div>
+                        <div class="grid-item compressor factory" id="Compressor_1">Compress 1</div>
+                        <div class="grid-item EA-1 factory" id="EA-1">EA-1</div>
+                        <div class="grid-item MC-5-2 factory" id="MC-5-2">MC-5 / 2</div>
+                        <div class="grid-item football-field general" id="football-field">Football Field</div>
+                        <div class="grid-item factory" id="Toilets_F2_2">Toilets/2</div>
+                        <div class="grid-item MC-22 factory" id="MC-22">MC-22</div>
+                        <div class="grid-item MC-16 factory" id="MC-16">MC-16</div>
+                        <div class="grid-item compressor factory" id="Compressor_2">Compress 2</div>
+                        <div class="grid-item warehouse factory" id="Warehouse">Warehouse</div>
+                        <div class="grid-item store factory" id="Store">Store</div>
+                        <div class="grid-item fire-pump-2 general" id="Fire_Pump_2">Fire Pump 2</div>
+                        <div class="grid-item chemical factory" id="Chemical">Chemical</div>
+                        <div class="grid-item oil-store general" id="Oil_Store">Oil Store</div>
+                        <div class="grid-item factory" id="Toilets_F2_3">Toilets/3</div>
+                        <div class="grid-item wh-office factory" id="WH_Office">WH Office</div>
+                        <div class="grid-item general-3" id="general-3"></div>
+                    </div>
+                </div>
+                <div class="factories-wrapper">
+                    <h3 class="factory-title">Factory 1</h3>
+                    <div class="factories factory-1">
+                        <div class="grid-item general-area general" id="General_Area">General Area</div>
+                        <div class="grid-item entrance-1 general" id="Entrance_1">Entrance 1</div>
+                        <div class="grid-item guar-house-1 general" id="Guard_House_1">Guard House 1</div>
+                        <div class="grid-item calibrate-room office" id="Calibrate_Room">Calibrate Room</div>
+                        <div class="grid-item guest-4 office" id="Guest_Room_4">Guest Room 4</div>
+                        <div class="grid-item guest-3 office" id="Guest_Room_3">Guest Room 3</div>
+                        <div class="grid-item guest-2 office" id="Guest_Room_2">Guest Room 2</div>
+                        <div class="grid-item office" id="Business_Talk">Business Talk</div>
+                        <div class="grid-item buddha office" id="Buddha">Buddha</div>
+                        <div class="grid-item locker general" id="Locker">Locker</div>
+                        <div class="grid-item office" id="Toilets_OF1_2">Toilets/2</div>
+                        <div class="grid-item first-aid office" id="First_Aid_Room">First Aid Room</div>
+                        <div class="grid-item training office" id="Training_Room">Training Room</div>
+                        <div class="grid-item office" id="Toilets_OF1_1">Toilets/1</div>
+                        <div class="grid-item guest-1 office" id="Guest_Room_1">Guest Room 1</div>
+                        <div class="grid-item CA-5 factory" id="CA-5">CA-5</div>
+                        <div class="grid-item CA-3-4 factory" id="CA-3">CA-3</div>
+                        <div class="grid-item center-board factory" id="Center_Board">Center Board</div>
+                        <div class="grid-item CA-1 factory" id="CA-1">CA-1</div>
+                        <div class="grid-item CA-6 factory" id="CA-6">CA-6</div>
+                        <div class="grid-item dojos factory" id="dojos">
+                            <div class="portion portion-1" id="Rest_Area_F1">Rest Area</div>
+                            <div class="portion portion-2" id="Safety_Dojo">Safety Dojo</div>
+                            <div class="portion portion-3" id="QA_Dojo">QA Dojo</div>
+                            <div class="portion portion-4" id="5S_Dojo">5S Dojo</div>
+                            <div class="portion portion-5" id="Electric_Dojo">Electric</div>
+                            <div class="portion portion-6" id="RO_Dojo">RO</div>
+                        </div>
+                        <div class="grid-item canteen general" id="Canteen">Canteen</div>
+                        <div class="grid-item car-park-3 general" id="Car_Park_F1">Car Park</div>
+                        <div class="grid-item CW-1 factory" id="CW-1-2-1">CW-1,2/1</div>
+                        <div class="grid-item CW-2 factory" id="CW-1-2-2">CW-1,2/2</div>
+                        <div class="grid-item CW-3 factory" id="CW-1-2-3">CW-1,2/3</div>
+                        <div class="grid-item CW-4 factory" id="CW-1-2-4">CW-1,2/4</div>
+
+                        <div class="grid-item MC-2 factory" id="MC-2">MC-2</div>
+                        <div class="grid-item MC-21 factory" id="MC-21">MC-21</div>
+                        <div class="grid-item MC-1-Upper factory" id="MC-1-Upper">MC-1 Upper</div>
+                        <div class="grid-item MC-19 factory" id="MC-19">MC-19</div>
+                        <div class="grid-item transformers general" id="Transformers">Transformers</div>
+                        <div class="grid-item MC-7 factory" id="MC-7">MC-7</div>
+                        <div class="grid-item inverter factory" id="Inverter_Room">Inverter Room</div>
+                        <div class="grid-item CA-2 factory" id="CA-2">CA-2</div>
+                        <div class="grid-item MC-4 factory" id="MC-4">MC-4</div>
+                        <div class="grid-item factory" id="Toilets_F1_1">Toilets/1</div>
+                        <div class="grid-item steel-scrap factory" id="Steel_Scrap">Steel Scrap</div>
+                        <div class="grid-item PA-1 factory" id="PA-1">PA-1</div>
+                        <div class="grid-item JA-2-Upper factory" id="JA-2-Upper">JA-2 Upper</div>
+                        <div class="grid-item BA-1-2 factory" id="BA-1-2">BA-1,2</div>
+                        <div class="grid-item MC-18 factory" id="MC-18">MC-18</div>
+                        <div class="grid-item MC-3 factory" id="MC-3">MC-3</div>
+                        <div class="grid-item disposal-room general" id="Disposal_Room">Disposal Room</div>
+                        <div class="grid-item MC-9 factory" id="MC-9">MC-9</div>
+                        <div class="grid-item chemical-room general" id="Chemical_Room">Chemical Room</div>
+                        <div class="grid-item JA-2-Lower factory" id="JA-2-Lower">JA-2 Lower</div>
+                        <div class="grid-item BA-3 factory" id="BA-3">BA-3</div>
+                        <div class="grid-item MC-8 factory" id="MC-8">MC-8</div>
+                        <div class="grid-item JA-6 factory" id="JA-6">JA-6</div>
+                        <div class="grid-item JA-3 factory" id="JA-3">JA-3</div>
+                        <div class="grid-item JA-5 factory" id="JA-5">JA-5</div>
+                        <div class="grid-item MC-13 factory" id="MC-13">MC-13</div>
+                        <div class="grid-item fire-pump-1 general" id="Fire_Pump_1">Fire Pump 1</div>
+                        <div class="grid-item waste-water-treatment factory" id="WasteWater_Treatment">Waste Water Treatment</div>
+                        <div class="grid-item MT-Dojo factory" id="MT_Dojo">MT Dojo</div>
+                        <div class="grid-item work-shop factory" id="Work_Shop">Work Shop</div>
+                        <div class="grid-item MT-Office factory" id="MT_Office">MT Office</div>
+                        <div class="grid-item blank-factory-1 factory" id="blank-factory-1"></div>
+                        <div class="grid-item LPG-Bulk general" id="LPG_Bulk">LPG Bulk</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="details">
+                <div style="border-left: 5px solid #6A64F1; padding-left: 5px; margin: -15px 0px;">
+                    <h4>Settings</h4>
+                </div>
+                <form id="filter-form" method="get" action="#">
+                    <div class="filters" style="display: flex; margin: 10px 0px;">
+                        <div class="filter-item" style="  margin: 0 auto;">
+                            <label for="category-filter" style=" font-size:14px; font-weight: bold; color: #555;">Category:</label>
+                            <select id="category-filter" name="profession" onchange="fetchReports(currentOperationLine)" style="width: 80px;">
+                                <option value="">All</option>
+                                {% for profession in professions %}
+                                <option value="{{ profession }}">{{ profession }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-item" style="  margin: 0 auto;">
+                            <label for="status-filter" style=" font-size:14px; font-weight: bold; color: #555;">Status:</label>
+                            <select id="status-filter" name="status" onchange="fetchReports(currentOperationLine)" style="width: 80px;">
+                                <option value="">All</option>
+                                <option value="0">Pending</option>
+                                <option value="1">Approved</option>
+                                <option value="2">Validated</option>
+                                <option value="3">Email Sent</option>
+                                <option value="4">Solved</option>
+                                <option value="5">Finished</option>
+                                <option value="6">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                        <label style=" font-size:14px;  color: #555;" >
+                            <input type="checkbox" name="slideOrNot" id="slideOrNot" checked onchange="onSlideToggle()">
+                            Slide all problem categories automatically
+                        </label>
+                </form>
+                <hr>
+                <div id="reports-container">
+                    <div class="slideshow-controls">
+                        <button onclick="prevSlide()">&#8249;</button>
+                        <button onclick="nextSlide()">&#8250;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend1" id="legend">
+                <div class="legend-item">
+                    <div class="color-box color1"></div>
+                    <span class="description">General</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box color2"></div>
+                    <span class="description">Office</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box color3"></div>
+                    <span class="description">Factory</span>
+                </div>
+            </div>
+            <div class="legend2">
+                <div class="legend2-item">
+                    <div class="color-box2 color4"></div>
+                    <span class="description">Pending</span>
+                </div>
+                <div class="legend2-item">
+                    <div class="color-box2 color5"></div>
+                    <span class="description">Approved</span>
+                </div>
+                <div class="legend2-item">
+                    <div class="color-box2 color6"></div>
+                    <span class="description">Validated</span>
+                </div>
+                <div class="legend2-item">
+                    <div class="color-box2 color7"></div>
+                    <span class="description">Sent Mail</span>
+                </div>
+                <div class="legend2-item">
+                    <div class="color-box2 color8"></div>
+                    <span class="description">Solved</span>
+                </div>
+                <div class="legend2-item">
+                    <div class="color-box2 color9"></div>
+                    <span class="description">Finished</span>
+                </div>
+                <div class="legend2-item">
+                    <div class="color-box2 color10"></div>
+                    <span class="description">Rejected</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <span class="close">&times;</span>
+            <div class="modal-content">
+                <div class="modal-problem">
+                </div>
+                <div class="modal-solution">
+                    <!-- Solution details will be displayed here -->
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <div id="content2" style="display: none;">
+        <div class="container-chart">
+            <div class="year-container">
+                <select id="yearSelect">
+                    <option value="none" selected>Current Year</option>
+                </select>
+            </div>
+            <div class="average">
+                <div class="average-reports">
+                    <div id="totalReportsByYear">Total Reports (Year)</div>
+                    <div class="report-number" id="reportYear">0</div>
+                </div>
+                <div class="average-reports">
+                    <div id="totalReportsByMonth">Total Reports (Month)</div>
+                    <div class="report-number" id="reportMonth">0</div>
+                </div>
+                <div class="average-reports">
+                    <div id="totalReportsByDay">Total Reports (Day)</div>
+                    <div class="report-number" id="reportDay">0</div>
+                </div>
+            </div>
+            
+            <div class="charts">
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <canvas id="reportsDaily"></canvas>
+                    </div>
+                    
+                    <div class="nested-canvases">
+                        <canvas id="categoriesChart"></canvas>
+                        <canvas id="statusesChart"></canvas>
+                        <h3 id='date' style="position: absolute; bottom: 0;  text-align: center;">Current Date</h3>
+                    </div>
+                    
+                </div>
+               
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <canvas id="reportsMonthly"></canvas>
+                    </div>
+                    <div class="nested-canvases">
+                        <canvas id="categoriesChartOneMonth"></canvas>
+                        <canvas id="statusesChartOneMonth"></canvas>
+                        <h3 id='month' style="position: absolute; bottom: 0;  text-align: center;"></h3>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let isContent1 = true;
+
+        function toggleContent() {
+            const contentElement1 = document.getElementById('content1');
+            const contentElement2 = document.getElementById('content2');
+            const layoutRadioButton = document.getElementById('layout');
+            const chartsRadioButton = document.getElementById('charts');
+
+            if (layoutRadioButton.checked) {
+                contentElement1.style.display = "block";
+                contentElement2.style.display = "none";
+                localStorage.setItem('selectedContent', 'content1');
+            } else if (chartsRadioButton.checked) {
+                contentElement1.style.display = "none";
+                contentElement2.style.display = "block";
+                localStorage.setItem('selectedContent', 'content2');
+            }
+        }
+        // Call toggleContent on page load to apply the saved state
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectedContent = localStorage.getItem('selectedContent') || 'content1';
+            if (selectedContent === 'content2') {
+                document.getElementById('charts').checked = true;
+                document.getElementById('content1').style.display = 'none';
+                document.getElementById('content2').style.display = 'block';
+            } else {
+                document.getElementById('layout').checked = true;
+                document.getElementById('content1').style.display = 'block';
+                document.getElementById('content2').style.display = 'none';
+            }
+        });
+
+        // Initial content display setup
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleContent();
+        });
+
+        let currentOperationLine = '';
+        let currentCategoryIndex = 0;
+        let currentReportIndex = 0;
+        let reportsPerPage = 4;
+        let reportsData = {};
+        let autoSlideInterval;
+        let slideEnabled;
+        let previousCategory = null;
+        // // Define the media query
+        const mediaQueryLargeScreen = window.matchMedia('(min-width: 1440px)');
+
+        // Function to set reportsPerPage based on media query state
+        function handleMediaQueryChange(event) {
+            if (event.matches) {
+                reportsPerPage = 7;  // If screen width is 1920px or more
+            } else {
+                reportsPerPage = 4;  // Default value
+            }
+            // console.log('reportsPerPage:', reportsPerPage);
+        }
+
+        // Check the initial state
+        handleMediaQueryChange(mediaQueryLargeScreen);
+
+        // Listen for changes in the media query state
+        mediaQueryLargeScreen.addEventListener('change', handleMediaQueryChange);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchReports('recent');
+            // Initialize slideEnabled based on the checkbox state
+            slideEnabled = document.getElementById('slideOrNot').checked;
+            // console.log("slideEnable or not ", slideEnabled); 
+        });
+
+        // Add an event listener to the checkbox to toggle auto-slide
+        document.getElementById('slideOrNot').addEventListener('change', function() {
+            slideEnabled = this.checked;
+            clearInterval(autoSlideInterval);
+            startAutoSlide();  // Ensure interval is reset and start auto-slide for current category
+        });
+
+        function fetchReports(operationLine) {
+            currentOperationLine = operationLine;
+            const status = document.getElementById('status-filter').value;
+            const profession = document.getElementById('category-filter').value;
+
+            const url = new URL(`inform/reports/${operationLine}/`, window.location.origin);
+            const params = { status, profession };
+            Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // console.log("data ",data)
+                    // Clear all existing circles before processing new data
+                    clearAllCircles();
+
+                    // Group reports by problemCategory
+                    reportsData = data.reduce((acc, report) => {
+                        if (!acc[report.problemCategory]) {
+                            acc[report.problemCategory] = [];
+                        }
+                        acc[report.problemCategory].push(report);
+                        return acc;
+                    }, {});
+                    
+                    // console.log("Report Data", reportsData)
+                    if (data.length == 0){
+                        const reportsContainer = document.getElementById('reports-container');
+                        reportsContainer.innerHTML = `<h3>${document.getElementById('category-filter').value}</h3>`;
+                    }
+
+
+                    currentCategoryIndex = 0;
+                    currentReportIndex = 0;
+                    displayCategoryReports();
+                    startAutoSlide();
+                })
+                .catch(error => {
+                    console.error('Error fetching reports:', error);
+                });
+        }
+
+        function onFilterChange() {
+            slideEnabled = false;
+            clearInterval(autoSlideInterval);
+            fetchReports(currentOperationLine);
+        }
+
+        function onSlideToggle() {
+            slideEnabled = document.getElementById('slideOrNot').checked;
+            // console.log("Slide toggle triggered. slideEnabled:", slideEnabled);
+            if (slideEnabled) {
+                startAutoSlide();
+            } else {
+                clearInterval(autoSlideInterval);
+                // Manually handle the sliding for categories with more than 4 reports
+                displayCategoryReports();
+            }
+        }
+                
+
+        function displayCategoryReports() {
+            const categories = Object.keys(reportsData);
+            console.log("reportsData ",reportsData);
+
+
+            if (categories.length === 0) return;
+
+            const currentCategory = categories[currentCategoryIndex];
+            const totalReportsCurrentCategory = reportsData[currentCategory ];
+            console.log("total reports ",totalReportsCurrentCategory.length);
+            const reportsContainer = document.getElementById('reports-container');
+            reportsContainer.innerHTML = `<h3>${currentCategory} (${totalReportsCurrentCategory.length})</h3>`;
+            // console.log("report per page to show ",reportsPerPage);
+            console.log("Current Report Index Real", currentReportIndex)
+            let reportsToShow = reportsData[currentCategory].slice(currentReportIndex, currentReportIndex + reportsPerPage);
+            // console.log("Report To Show",reportsToShow)
+            // Clear all circles when the category changes
+            // if (currentCategory !== previousCategory) {
+            //     clearAllCircles();
+            // }
+            clearAllCircles();
+
+
+            let today = new Date();
+            let dd = String(today.getDate()).padStart(2, '0');
+            let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            let yyyy = today.getFullYear();
+
+            today = yyyy + '-' + mm + '-' + dd;
+            // console.log("Today's date:", today);
+            reportsToShow.forEach(report => {
+                const reportElement = document.createElement('div');
+                reportElement.className = `report active status-${report.status}`;
+                // console.log("reportname", report)
+                reportElement.innerHTML = `
+                    <div class="report-header">
+                        <h4>Line: ${report.operationLineNumber}</h4>
+                        <div class="${getStatusTagClass(report.status)}">${report.status_tag}</div>
+                    </div>
+                    <p><strong style="color:#828181;">Reporter Name:</strong> ${report.reporterNameReal}</p>
+                    <p><strong style="color:#828181;">Problem Category:</strong> ${report.problemCategory}</p>
+                `;
+                let dueDate = report.dueDate;
+                let finishDate = report.finishDate;
+                let rank_bg = "";
+                let rank_txt_color = "";
+                if (report.rank == "A"){
+                    rank_bg = "red";
+                    rank_txt_color = "white";
+                }
+                else if (report.rank == "B"){
+                    rank_bg = "yellow";
+                    rank_txt_color = "black";
+                }
+                else if (report.rank == "C"){
+                    rank_bg = "gray";
+                    rank_txt_color = "white";
+
+                }
+                else{
+                    rank_txt_color = "white";
+                }
+
+                // console.log("finishDate and dueDate ",finishDate,dueDate);
+                
+                // If finishDate is not null, finishDate is less than or equal to dueDate, the report is finished on time
+                if (finishDate && finishDate <= dueDate) {
+                    reportElement.innerHTML += `
+                        <div style="display:flex;">
+                            <p><strong style="color:#828181;">Due date:</strong><strong class="on-time" style="color: white; font-size: 10px;"> ${dueDate || 'N/A'}</strong></p>
+                            <div class="rank-style" style="background-color:${rank_bg}; color:${rank_txt_color}"><p class="rank-style-p">${report.rank || 'N/A'}</p></div>
+                        </div> 
+                    `;
+                } 
+                // If finishDate is null, today is greater than dueDate, the report is overdue
+                else if (!finishDate && today > dueDate) {
+                    reportElement.innerHTML += `
+                        <div style="display:flex;">
+                            <p><strong style="color:#828181;">Due date:</strong><strong class="overdue" style="color: white; font-size: 10px;"> ${dueDate || 'N/A'}</strong></p>
+                            <div class="rank-style" style="background-color:${rank_bg}; color:${rank_txt_color}"><p class="rank-style-p">${report.rank || 'N/A'}</p></div>
+                        </div> 
+                    
+                    `;
+                } 
+                // If finishDate is not null, today is greater than dueDate, the report is overdue but finished
+                else if (finishDate && today > dueDate && finishDate > dueDate) {
+                    reportElement.innerHTML += `
+                        <div style="display:flex;">
+                            <p><strong style="color:#828181;">Due date:</strong><strong class="overdue-finished" style="color: white; font-size: 10px;"> ${dueDate || 'N/A'}</strong></p>
+                            <div class="rank-style" style="background-color:${rank_bg}; color:${rank_txt_color}"><p class="rank-style-p">${report.rank || 'N/A'}</p></div>
+                        </div>    
+                    
+                    `;
+                } 
+                // Else, the report is in process
+                else {
+                    reportElement.innerHTML += `
+                        <div style="display:flex;">
+                            <p><strong style="color:#828181;">Due date:</strong><strong style="font-size: 10px;"> ${dueDate || 'N/A'}</strong></p>    
+                            <div class="rank-style" style="background-color:${rank_bg}; color:${rank_txt_color}"><p class="rank-style-p">${report.rank || 'N/A'}</p></div>
+                        </div>
+                    `;
+                }
+
+                reportElement.addEventListener("click", function() {
+                    openModal(report);
+                });
+
+                reportsContainer.appendChild(reportElement);
+
+                const targetDiv = document.getElementById(report.operationLineNumber);
+                if (targetDiv) {
+                    highlightOperationLine(targetDiv, report.status, report.reportID, report.problemCategory);
+                } else {
+                    console.warn(`No element found with ID: ${report.operationLineNumber}`);
+                }
+            });
+
+            previousCategory = currentCategory;
+        }
+
+
+        function clearAllCircles() {
+            const existingCircles = document.querySelectorAll('.status-circle');
+            existingCircles.forEach(circle => circle.remove());
+        }
+
+        function highlightOperationLine(targetDiv, status, reportID, problemCategory) {
+            const selectedStatus = document.getElementById('status-filter').value;
+
+            // Show circles for the selected status or if no specific status is selected, show for ['0', '1', '2','3']
+            if (selectedStatus !== 'All' && selectedStatus !== '' && status !== selectedStatus) {
+                return; // Skip if the status does not match the selected filter
+            }
+            if (selectedStatus === '' && !['0', '1', '2','3'].includes(status)) {
+                return; // Skip if the status is not pending, approved, or email_sent
+            }
+
+            // Check if circle for this reportID already exists
+            if (targetDiv.querySelector(`.report-${reportID}`)) {
+                return; // Skip if circle already exists
+            }
+
+            // Add new circle
+            targetDiv.style.position = 'relative';
+            const statusColor = getStatusColor(status);
+            const circle = document.createElement('div');
+            circle.className = `status-circle report-${reportID}`;
+            if (status == '0'){
+                circle.style.color="black";
+            }
+            circle.style.backgroundColor = statusColor;
+
+            // Add the initial letter of the problem category inside the circle
+            const initialLetter = document.createTextNode(problemCategory.charAt(0).toUpperCase());
+            circle.appendChild(initialLetter);
+
+            // Position the circle uniquely within the targetDiv
+            const existingCircles = targetDiv.getElementsByClassName('status-circle');
+            const offset = existingCircles.length * 12; // Adjust spacing as needed
+            circle.style.left = `${offset}px`;
+
+            // Add the circle to the target div
+            targetDiv.appendChild(circle);
+
+            setInterval(() => {
+                circle.classList.toggle('blink');
+            }, 800);
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case '0': return 'yellow'; // pending
+                case '1': return 'orange'; // approved
+                case '2': return '#E74133'; // validated              
+                case '3': return '#4470b1'; // email_sent
+                case '4': return '#17BF0B'; // solved
+                case '5': return '#2A9D8F'; // finished
+                case '6': return '#7C7C7C'; // rejected
+                default: return 'black';
+            }
+        }
+
+        function getStatusTagClass(status) {
+            switch(status) {
+                case '0': return 'pending-tag';
+                case '1': return 'approved-tag';
+                case '2': return 'validated';
+                case '3': return 'email_sent';
+                case '4': return 'solved';
+                case '5': return 'finished';
+                case '6': return 'rejected';
+                default: return '';
+            }
+        }
+
+        function startAutoSlide() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(() => {
+                nextSlide();
+            }, 60000);
+        }
+
+        function nextCategory() {
+            const categories = Object.keys(reportsData);
+            if (categories.length === 0) return;
+
+            // currentCategoryIndex = (currentCategoryIndex + 1) % categories.length;
+            currentCategoryIndex = 0;
+            currentReportIndex = 0;
+            displayCategoryReports();
+        }
+
+        function nextSlide() {
+            const categories = Object.keys(reportsData);
+            if (categories.length === 0) return;
+
+            console.log("Categories", categories)
+
+            const currentCategory = categories[currentCategoryIndex];
+            const reportsToShow = reportsData[currentCategory];
+            console.log("Current Category",currentCategory)
+            console.log("Reports To Show For Current Category" , reportsToShow)
+            console.log("Slide Enabled", slideEnabled)
+            console.log("Category Value", document.getElementById('category-filter').value)
+            if( slideEnabled && document.getElementById('category-filter').value === ''){
+                reportsMaxToShow = Math.min(reportsToShow.length, 28)
+            }
+            else{
+                console.log("I am in else")
+                reportsMaxToShow = reportsToShow.length
+            }
+            console.log("Reprot Max ( Counter / Limit)", reportsMaxToShow)
+            if (currentReportIndex + reportsPerPage < reportsMaxToShow) {
+                currentReportIndex += reportsPerPage;
+                console.log("Current Report Index", currentReportIndex)
+            } else {
+                currentReportIndex = 0;
+                if (slideEnabled) {
+                    if (currentCategoryIndex + 1 < categories.length) {
+                        currentCategoryIndex += 1;
+                        console.log("current Category Index moved to next", currentCategoryIndex)
+                    } else {
+                        currentCategoryIndex = 0; // Wrap back to the first category
+                        console.log("Current CategoryIndex returned to 0", currentCategoryIndex)
+                    }
+                }
+            }
+            displayCategoryReports();
+        }
+
+        document.getElementById('category-filter').addEventListener('change', onFilterChange);
+        document.getElementById('status-filter').addEventListener('change', onFilterChange);
+
+        function onFilterChange() {
+            slideEnabled = false;
+            clearInterval(autoSlideInterval);
+            fetchReports(currentOperationLine);
+        }
+
+
+        function openModal(report) {
+            const modal = document.getElementById('myModal');
+            const modalProblem = document.querySelector('.modal-problem');
+            const modalSolution = document.querySelector('.modal-solution');
+            // console.log("report obj is ",report)
+
+   
+            if (!modal || !modalProblem || !modalSolution) {
+        console.error('Modal or required elements not found in the DOM.');
+        return;
+    }
+
+    modal.style.display = 'block';
+
+    modalProblem.innerHTML = `
+        <div style="border-left: 5px solid #6A64F1; padding-left: 5px;">
+            <h3>Issue to be resolved</h3>
+        </div>
+        <ul>
+            <div style="display:flex">
+                <li><strong>Reporter Name:</strong> ${report.reporterNameReal || 'N/A'}</li>
+                <div style="margin-left: auto;" class="status-tag ${getStatusTagClass(report.status)}">${report.status_tag || 'N/A'}</div>
+            </div>
+            <li><strong>Operation Line:</strong> ${report.operationLineNumber || 'N/A'}</li>
+            <li><strong>Machine Number:</strong> ${report.machineNumber || 'N/A'}</li>
+            <li><strong>Problem Category:</strong> ${report.problemCategory || 'N/A'}</li>
+            <li><strong>Problem Type:</strong> ${report.subCategory || 'N/A'}</li>
+            <li><strong>Sub Category: ${report.subCategoryForUser || 'N/A'}</li>
+            <li><strong>Rank:</strong> ${report.rank || 'N/A'}</li>
+            <li><strong>Description:</strong> ${report.problemDescription || 'N/A'}</li>
+            <li><strong>Date Created:</strong> ${report.datetime || 'N/A'}</li>
+            <li><strong>Finished Date:</strong> ${report.finishDate || 'N/A'}</li>
+            <li><strong>Images:</strong>
+                <ul>
+                    ${report.images.map(image => `
+                        <li>
+                            <img src="/${image.imageData}" alt="Report Image" style="max-width: 250px; max-height: 250px;">
+                        </li>
+                    `).join('')}
+                </ul>
+            </li>
+        </li>
+            
+        </ul>
+    `;
+            let today = new Date();
+            let dd = String(today.getDate()).padStart(2, '0');
+            let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            let yyyy = today.getFullYear();
+
+            today = yyyy + '-' + mm + '-' + dd;
+            // console.log("Today's date:", today);
+
+            let dueDate = report.dueDate;
+            let finishDate = report.finishDate;
+
+            // console.log("Due date:", dueDate);
+            // console.log("Finish date:", finishDate);
+
+            // If finishDate is not null, today is greater than or equal to finishDate, the report is finished on time
+            if (finishDate && finishDate <= dueDate) {
+                modalProblem.innerHTML += `
+                    <ul>
+                        <li><strong>Due date:</strong><strong class="on-time" style="color: white;"> ${dueDate || 'N/A'}</strong></li>
+                    </ul>
+                `;
+            } 
+            // If finishDate is null, today is greater than dueDate, the report is overdue
+            else if (!finishDate && today > dueDate) {
+                modalProblem.innerHTML += `
+                    <ul>
+                        <li><strong>Due date:</strong><strong class="overdue" style="color: white;"> ${dueDate || 'N/A'}</strong></li>
+                    </ul>
+                `;
+            } 
+            // If finishDate is not null, today is greater than dueDate, the report is overdue but finished
+            else if (finishDate && today > dueDate && finishDate > dueDate) {
+                modalProblem.innerHTML += `
+                    <ul>
+                        <li><strong>Due date:</strong><strong class="overdue-finished" style="color: white;"> ${dueDate || 'N/A'}</strong></li>
+                    </ul>
+                `;
+            } 
+            // Else, the report is in process
+            else {
+                modalProblem.innerHTML += `
+                    <ul>
+                        <li><strong>Due date:</strong><strong> ${dueDate || 'N/A'}</strong></li>
+                    </ul>
+                `;
+            }
+
+
+
+            // Display solution details if available, otherwise display "Solution in process"
+            if (report.status === '4' || report.status === '5') {
+                modalSolution.innerHTML = `
+                <div style="border-left: 5px solid #17BF0B; padding-left: 5px;">
+                    <h3 style="color: #17BF0B;">Solution of the issue</h3>
+                </div>
+                    <ul>
+                        <li><strong>Issue Resolved By:</strong> ${report.solution.solverName}</li>
+                        <li><strong>Description:</strong> ${report.solution.description}</li>
+                        <li><strong>Issue Resolved Time:</strong> ${report.solution.datetime}</li>
+                        <li><strong>Images:</strong>
+                            <ul>
+                                ${report.solution.images.map(image => `
+                                    <li>
+                                        <img src="/${image.imageData}" alt="Solution Image" style="max-width: 250px; max-height: 250px;">
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </li>
+
+                    </ul>
+                `;
+            } else if (report.status === '6') {
+                modalSolution.innerHTML = `
+                    <div style="border-left: 5px solid red; padding-left: 5px;">
+                        <h3 style="color: red;">No solution</h3>
+                    </div>
+                        <ul>
+                            <li><strong>Issue was already rejected.</strong></li>
+                        </ul>
+                `;
+            } else {
+                modalSolution.innerHTML = `
+                    <div style="border-left: 5px solid #6A64F1; padding-left: 5px;">
+                        <h3>Solution in process ...</h3>
+                    </div>
+                `;
+            }
+
+            // Close the modal when clicking on the close button
+            const closeButton = document.querySelector('.close');
+            closeButton.onclick = function() {
+                modal.style.display = 'none';
+            };
+
+            // Close the modal when clicking anywhere outside of it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+
+
+        // Function to save filter values to local storage
+        function saveFiltersToLocalStorage() {
+            const statusFilter = document.getElementById('status-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+
+            // Save filter values to local storage
+            localStorage.setItem('statusFilter', statusFilter);
+            localStorage.setItem('categoryFilter', categoryFilter);
+        }
+
+        // Function to apply saved filter values from local storage
+        function applyFiltersFromLocalStorage() {
+            const statusFilter = localStorage.getItem('statusFilter');
+            const categoryFilter = localStorage.getItem('categoryFilter');
+
+            // Apply filter values to filter elements
+            if (statusFilter) {
+                document.getElementById('status-filter').value = statusFilter;
+            }
+            if (categoryFilter) {
+                document.getElementById('category-filter').value = categoryFilter;
+            }
+        }
+
+        // Function to fetch reports with saved filter values
+        function fetchReportsWithSavedFilters() {
+            const statusFilter = localStorage.getItem('statusFilter');
+            const categoryFilter = localStorage.getItem('categoryFilter');
+            const operationLine = currentOperationLine; // Assuming currentOperationLine is a global variable
+            const slideEnabled = localStorage.getItem('slideEnabled') === 'true';
+
+            fetchReports(operationLine, statusFilter, categoryFilter);
+            // Set the slideOrNot checkbox state based on the saved value
+            document.getElementById('slideOrNot').checked = slideEnabled;
+        }
+
+        // Event listener to save filter values when filters change
+        document.getElementById('status-filter').addEventListener('change', saveFiltersToLocalStorage);
+        document.getElementById('category-filter').addEventListener('change', saveFiltersToLocalStorage);
+        document.getElementById('slideOrNot').addEventListener('change', saveSlideStateToLocalStorage);
+
+        // Apply saved filters when the page loads
+        window.onload = function() {
+            applyFiltersFromLocalStorage();
+            fetchReportsWithSavedFilters(); // Fetch reports with saved filter values
+        };
+
+        // Reload the page every 10 seconds
+        setInterval(function() {
+            fetchReportsWithSavedFilters(); // Fetch reports with saved filter values
+        }, 60000 * 5); // 60 seconds in milliseconds
+
+        // Function to save slideOrNot state to local storage
+        function saveSlideStateToLocalStorage() {
+            localStorage.setItem('slideEnabled', this.checked); // Store the boolean value
+        }
+
+
+    </script>
+        <script>
+            function fetchReportsByYear(year) {
+                const url = new URL(`/inform/reports_by_year/${year}/`, window.location.origin);
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        // console.log(data)
+                        document.getElementById('totalReportsByYear').textContent = `Total Reports (${data.year})`;
+                        document.getElementById('reportYear').textContent = `${data.total_reports}`;
+                    })
+                    .catch(error => console.error('Error fetching reports by year:', error));
+            }
+    
+            function fetchReportsByYearMonth(year, month) {
+                const url = new URL(`/inform/reports_by_year_month/${year}/${month}/`, window.location.origin);
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const date = new Date(data.year,data.month-1); // Using day 1 to avoid timezone issues
+    
+                        // Define an array of month names
+                        const monthNames = [
+                        'January', 'February', 'March', 'April',
+                        'May', 'June', 'July', 'August',
+                        'September', 'October', 'November', 'December'
+                        ];
+    
+                        // Format the date
+                        const formattedDate = `${monthNames[date.getMonth()]}`;
+                        document.getElementById('totalReportsByMonth').textContent = `Total Reports (${formattedDate})`;
+                        document.getElementById('reportMonth').textContent = `${data.total_reports}`;
+                    })
+                    .catch(error => console.error('Error fetching reports by year and month:', error));
+            }
+    
+            function fetchReportsByYearMonthDate(year, month, day) {
+                const url = new URL(`/inform/reports_by_year_month_date/${year}/${month}/${day}/`, window.location.origin);
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const date = new Date(data.year,data.month-1,data.day,1); // Using day 1 to avoid timezone issues
+    
+                        // Define an array of month names
+                        const monthNames = [
+                        'January', 'February', 'March', 'April',
+                        'May', 'June', 'July', 'August',
+                        'September', 'October', 'November', 'December'
+                        ];
+    
+                        // Format the date
+                        const formattedDate = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+                        document.getElementById('totalReportsByDay').textContent = `Total Reports (${formattedDate})`;
+                        document.getElementById('reportDay').textContent = `${data.total_reports}`;
+                    })
+                    .catch(error => console.error('Error fetching reports by year, month, and day:', error));
+            }
+            
+            let myChartMonth = null
+            let myChartDay = null
+            // These are for the line and bar charts
+            function fetchReportsDaily(year='null', month='null') {
+                if(year ==='null' && month == 'null'){
+                     year = new Date().getFullYear();
+                     month = new Date().getMonth() + 1;
+                }
+                
+                const url = new URL(`inform/reports_daily/${year}/${month}/`, window.location.origin) 
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ctx = document.getElementById('reportsDaily').getContext('2d');
+                        const labels = data.map(item => item.day);
+                        const counts = data.map(item => item.count);
+                        last = labels.length -1
+                        // after fetching change the pie to first day of month pie
+                        dateData = labels[last].split('-')  
+                        fetchReportsToday(dateData[0],dateData[1],dateData[2])
+    
+                        // ALso change the date display on top right corner
+                        fetchReportsByYearMonthDate(dateData[0],dateData[1],dateData[2])
+                        const barData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Number of Reports',
+                                data: counts,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        };
+    
+                        const lineData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Number of Reports (Line)',
+                                data: counts,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderWidth: 1,
+                                type: 'line'
+                            }]
+                        };
+    
+                        const options = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0 // Display whole numbers on y-axis
+                                    }
+                                },
+                                x: {
+                                    type: 'time',
+                                    time: {
+                                        unit: 'day'
+                                    }
+                                }
+                            }
+                        };
+    
+                        const config = {
+                            type: 'bar',
+                            data: barData,
+                            options: options
+                        };
+    
+                        if(myChartDay)
+                        {
+                            myChartDay.destroy()
+                        }
+                        // Create the chart
+                        myChartDay = new Chart(ctx, config);
+    
+                        // Add the line dataset
+                        myChartDay.data.datasets.push(...lineData.datasets);
+                        myChartDay.update();
+                    });
+            }
+    
+            function fetchReportsMonthly() {
+                const year = document.getElementById('yearSelect').value;
+                 // If the selected value is "none", set it to the current year
+                let url;
+                if (year === "none") {
+                    const currentYear = new Date().getFullYear();
+                    url = new URL(`/inform/reports_monthly/${currentYear}/`, window.location.origin);
+                } else {
+                    url = new URL(`/inform/reports_monthly/${year}/`, window.location.origin);
+                }
+                // Get the selected year from the select box
+            
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ctx = document.getElementById('reportsMonthly').getContext('2d');
+                        const labels = data.map(item => item.month);
+                        const counts = data.map(item => item.count);
+                        const barData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Number of Reports',
+                                data: counts,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        };
+    
+                        const lineData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Number of Reports (Line)',
+                                data: counts,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderWidth: 1,
+                                type: 'line'
+                            }]
+                        };
+    
+                        const options = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0 // Display whole numbers on y-axis
+                                    }
+                                },
+                                x: {
+                                    type: 'time',
+                                    time: {
+                                        unit: 'month'
+                                    }
+                                }
+                            }
+                        };
+    
+                        const config = {
+                            type: 'bar',
+                            data: barData,
+                            options: options
+                        };
+    
+                        // Create the charts
+                        myChartMonth = new Chart(ctx, config);
+    
+                        // Add the line dataset
+                        myChartMonth.data.datasets.push(...lineData.datasets);
+                        myChartMonth.update();
+                    });
+                    
+    
+            }
+            
+            let categoriesChartOneDay = null
+            let statusesChartOneDay = null
+            // This is for the pie charts
+            function fetchReportsToday(year, month, day){
+                const url = new URL(`inform/reports_today/${year}/${month}/${day}/`, window.location.origin) 
+                // Create a Date object
+                const date = new Date(year,month-1,day, 1); // Using day 1 to avoid timezone issues
+    
+                // Define an array of month names
+                const monthNames = [
+                'January', 'February', 'March', 'April',
+                'May', 'June', 'July', 'August',
+                'September', 'October', 'November', 'December'
+                ];
+    
+                // Format the date
+                const formattedDate = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+    
+                // Assign the formatted date to the innerHTML of an element
+                document.getElementById('date').innerHTML = formattedDate;
+                                    // document.getElementById('month').innerHTML = ''
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                            // Destroy the existing charts if they exist
+                            if (categoriesChartOneDay) {
+                                categoriesChartOneDay.destroy();
+                            }
+                            if (statusesChartOneDay) {
+                                statusesChartOneDay.destroy();
+                            }
+                             // Pie chart for categories
+                             categoriesChartOneDay = new Chart(document.getElementById('categoriesChart'), {
+                            type: 'pie',
+                            data: {
+                                labels: data.categories_labels,
+                                datasets: [{
+                                    label: 'Reports by Category',
+                                    data: data.categories_counts,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.7)',
+                                        'rgba(54, 162, 235, 0.7)',
+                                        'rgba(255, 206, 86, 0.7)',
+                                        'rgba(75, 192, 192, 0.7)',
+                                        'rgba(153, 102, 255, 0.7)',
+                                        'rgba(255, 159, 64, 0.7)',
+                                        'rgba(255, 159, 64, 0.7)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'right', // Change to 'right' or 'bottom' as needed
+                                        labels: {
+                                            boxWidth: 10, // Adjust the box width
+                                            padding: 10 // Adjust the padding between labels
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                const label = tooltipItem.label || '';
+                                                const value = tooltipItem.raw;
+                                                const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(2);
+                                                return `${label}: ${value} (${percentage}%)`;
+                                            }
+                                        }
+                                },
+                                    datalabels: {
+                                        formatter: (value, ctx) => {
+                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                        return total.toString(); // Display total amount as the label
+                                    },
+                                        color: '#fff',
+                                        labels: {
+                                            title: {
+                                                font: {
+                                                    weight: 'bold'
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                            
+                            },
+                            
+                        }
+                            
+                    });
+                    const statusMapping = {
+                        0: 'Pending',
+                        1: 'Approved',
+                        2: 'Validated',
+                        3: 'Sent Mail',
+                        4: 'Solved',
+                        5: 'Finished',
+                        6: 'Rejected'
+                    };
+                    // Map status numbers to status texts
+                    const statusLabels = data.statuses_labels.map(label => statusMapping[label]);
+                        // Pie chart for statuses
+                        statusesChartOneDay = new Chart(document.getElementById('statusesChart'), {
+                            type: 'pie',
+                            data: {
+                                labels: statusLabels,
+                                datasets: [{
+                                    label: 'Reports by Status',
+                                    data: data.statuses_counts,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.7)',
+                                        'rgba(54, 162, 235, 0.7)',
+                                        'rgba(255, 206, 86, 0.7)',
+                                        'rgba(75, 192, 192, 0.7)',
+                                        'rgba(153, 102, 255, 0.7)',
+                                        'rgba(255, 159, 64, 0.7)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'right', // Change to 'right' or 'bottom' as needed
+                                        labels: {
+                                            boxWidth: 10, // Adjust the box width
+                                            padding: 10 // Adjust the padding between labels
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                const label = tooltipItem.label || '';
+                                                const value = tooltipItem.raw;
+                                                const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(2);
+                                                return `${label}: ${value} (${percentage}%)`;
+                                            }
+                                        }
+                                }
+                            }
+                        }
+                        });
+                    })
+            }
+           
+            // Keep references to the charts
+            let categoriesChartOneMonth = null;
+            let statusesChartOneMonth = null;
+            function fetchReportsSpecifiedMonth(currentYear, currentMonth) {
+                    const url = new URL(`inform/reports_currentMonth/${currentYear}/${currentMonth}/`, window.location.origin);
+    
+                    // Create a Date object
+                    const date = new Date(currentYear, currentMonth-1, 1); // Using day 1 to avoid timezone issues
+    
+                    // Define an array of month names
+                    const monthNames = [
+                    'January', 'February', 'March', 'April',
+                    'May', 'June', 'July', 'August',
+                    'September', 'October', 'November', 'December'
+                    ];
+    
+                    // Format the date
+                    const formattedDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    
+                    // Assign the formatted date to the innerHTML of an element
+                    document.getElementById('month').innerHTML = formattedDate;
+                                        // document.getElementById('month').innerHTML = ''
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Destroy the existing charts if they exist
+                            if (categoriesChartOneMonth) {
+                                categoriesChartOneMonth.destroy();
+                            }
+                            if (statusesChartOneMonth) {
+                                statusesChartOneMonth.destroy();
+                            }
+                            // Pie chart for categories
+                            const colors = [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)',
+                                'rgba(255, 159, 64, 0.7)',
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(54, 162, 235, 0.5)',
+                                'rgba(255, 206, 86, 0.5)',
+                                'rgba(75, 192, 192, 0.5)',
+                                'rgba(153, 102, 255, 0.5)',
+                                'rgba(255, 159, 64, 0.5)'
+                            ];
+                            
+                            categoriesChartOneMonth = new Chart(document.getElementById('categoriesChartOneMonth'), {
+                                type: 'pie',
+                                data: {
+                                    labels: data.categories_labels,
+                                    datasets: [{
+                                        label: 'Reports by Category',
+                                        data: data.categories_counts,
+                                        backgroundColor: colors,
+                                        borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255,206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                        ],
+                                        borderColor: colors.map(color => color.replace('0.7', '1').replace('0.5', '1')),
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'right', // Change to 'right' or 'bottom' as needed
+                                        labels: {
+                                            boxWidth: 10, // Adjust the box width
+                                            padding: 10 // Adjust the padding between labels
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                const label = tooltipItem.label || '';
+                                                const value = tooltipItem.raw;
+                                                const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(2);
+                                                return `${label}: ${value} (${percentage}%)`;
+                                            }
+                                        }
+                                }
+                            }
+                        }
+                            });
+                            
+                            const statusMapping = {
+                                0: 'Pending',
+                                1: 'Approved',
+                                2: 'Validated',
+                                3: 'Sent Mail',
+                                4: 'Solved',
+                                5: 'Finished',
+                                6: 'Rejected'
+                            
+                            };
+                            // Map status numbers to status texts
+                            const statusLabels = data.statuses_labels.map(label => statusMapping[label]);
+                            // Pie chart for statuses
+                            statusesChartOneMonth = new Chart(document.getElementById('statusesChartOneMonth'), {
+                                type: 'pie',
+                                data: {
+                                    labels: statusLabels,
+                                    datasets: [{
+                                        label: 'Reports by Status',
+                                        data: data.statuses_counts,
+                                        backgroundColor: colors,
+                                        borderColor: colors.map(color => color.replace('0.7', '1').replace('0.5', '1')),
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'right', // Change to 'right' or 'bottom' as needed
+                                        labels: {
+                                            boxWidth: 10, // Adjust the box width
+                                            padding: 10 // Adjust the padding between labels
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                const label = tooltipItem.label || '';
+                                                const value = tooltipItem.raw;
+                                                const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(2);
+                                                return `${label}: ${value} (${percentage}%)`;
+                                            }
+                                }
+                                }
+                            }
+                        }
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching reports:', error);
+                        });
+            }
+           
+            // This is for the year selection options
+            function fetchYears() {
+                fetch('/inform/get_years/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const yearSelect = document.getElementById('yearSelect');
+                        data.years.forEach(year => {
+                            const option = document.createElement('option');
+                            option.value = year;
+                            option.textContent = year;
+                            yearSelect.appendChild(option);
+                        });
+                    });
+            }   
+    
+            // Event listener for year selection change
+            document.getElementById('yearSelect').addEventListener('change', function() {
+                // Get the selected year from the select box
+                const year = this.value;
+                if (year === 'none' ) {
+                    localStorage.setItem('selectedContent', 'content2');
+                    window.location.reload()}
+                else {
+                    url = new URL(`/inform/reports_monthly/${year}/`, window.location.origin);
+                }
+                
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ctx = document.getElementById('reportsMonthly').getContext('2d');
+                        const labels = data.map(item => item.month);
+                        const counts = data.map(item => item.count);
+                        
+                        const barData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Number of Reports',
+                                data: counts,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        };
+    
+                        const lineData = {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Number of Reports (Line)',
+                                data: counts,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderWidth: 1,
+                                type: 'line'
+                            }]
+                        };
+    
+                        const options = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0 // Display whole numbers on y-axis
+                                    }
+                                },
+                                x: {
+                                    type: 'time',
+                                    time: {
+                                        unit: 'month'
+                                    }
+                                }
+                            }
+                        };
+    
+                        const config = {
+                            type: 'bar',
+                            data: barData,
+                            options: options
+                        };
+    
+                        // Destroy the existing chart if it exists
+                        if (myChartMonth) {
+                            myChartMonth.destroy();
+                        }
+                        // Create the charts
+                        myChartMonth = new Chart(ctx, config);
+                        // Add the line dataset
+                        myChartMonth.data.datasets.push(...lineData.datasets);
+                        myChartMonth.update();
+                        
+                
+                        // Fetch daily reports based on the first month
+                        const firstMonth = labels[0]; // Assuming labels are sorted
+                        if (firstMonth) {
+                            const [fetchYear, fetchMonth] = firstMonth.split('-');
+                            // Update the Year count view 
+                            fetchReportsByYear(fetchYear)
+                            // Update the Month Count View
+                            fetchReportsByYearMonth(fetchYear,fetchMonth)
+    
+                            const dailyUrl = new URL(`/inform/reports_daily/${fetchYear}/${fetchMonth}/`, window.location.origin);
+    
+                            fetch(dailyUrl)
+                                .then(response => response.json())
+                                .then(data => {
+                                    const ctx = document.getElementById('reportsDaily').getContext('2d');
+                                    const labels = data.map(item => item.day);
+                                    const counts = data.map(item => item.count);
+    
+                                    const barData = {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Number of Reports',
+                                            data: counts,
+                                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                            borderColor: 'rgba(54, 162, 235, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    };
+    
+                                    const lineData = {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Number of Reports (Line)',
+                                            data: counts,
+                                            borderColor: 'rgba(255, 99, 132, 1)',
+                                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                            borderWidth: 1,
+                                            type: 'line'
+                                        }]
+                                    };
+    
+                                    const options = {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    precision: 0 // Display whole numbers on y-axis
+                                                }
+                                            },
+                                            x: {
+                                                type: 'time',
+                                                time: {
+                                                    unit: 'day'
+                                                }
+                                            }
+                                        }
+                                    };
+    
+                                    const config = {
+                                        type: 'bar',
+                                        data: barData,
+                                        options: options
+                                    };
+    
+                                    if (myChartDay) {
+                                        myChartDay.destroy();
+                                    }
+                                    // Create the chart
+                                    myChartDay = new Chart(ctx, config);
+    
+                                    // Add the line dataset
+                                    myChartDay.data.datasets.push(...lineData.datasets);
+                                    myChartDay.update();
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching daily reports:', error);
+                                });
+                                // Fetch the pie data for Month
+                            fetchReportsSpecifiedMonth(fetchYear,fetchMonth)
+    
+                            // If change year, display the month (text) on the pie chart
+                            const url = new URL(`inform/reports_daily/${fetchYear}/${fetchMonth}/`, window.location.origin) 
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(data => {
+                                    const ctx = document.getElementById('reportsDaily').getContext('2d');
+                                    const labels = data.map(item => item.day);
+                                    splitDate = labels[0].split('-')
+                                    year1 = splitDate[0]
+                                    month = splitDate[1]
+                                    day = splitDate[2]
+    
+                                    //Update the date count view 
+                                    fetchReportsByYearMonthDate(year1,month,day)
+                                    // Create a Date object
+                                    const date = new Date(year1,month-1,day, 1); // Using day 1 to avoid timezone issues
+    
+                                    // Define an array of month names
+                                    const monthNames = [
+                                    'January', 'February', 'March', 'April',
+                                    'May', 'June', 'July', 'August',
+                                    'September', 'October', 'November', 'December'
+                                    ];
+    
+                                    // Format the date
+                                    const formattedDate = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+    
+                                    // Assign the formatted date to the innerHTML of an element
+                                    document.getElementById('date').innerHTML = formattedDate;
+    
+                                    // If change year display the chart on day Pie
+                                    fetchReportsToday(year1,month,day)
+                                });
+                        }
+                        
+                        
+    
+                    })
+                    .catch(error => {
+                        console.error('Error fetching monthly reports:', error);
+                    });
+                    
+                
+            });
+    
+            // Add click event listener to the canvas
+            // Add event listener to the chart's canvas
+            document.getElementById('reportsDaily').addEventListener('click', function(event) {
+                const activePoints = myChartDay.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+                // console.log(activePoints)
+                if (activePoints.length > 0) {
+                    const firstPoint = activePoints[0];
+                    const label = myChartDay.data.labels[firstPoint.index];
+                    splitLabel = label.split('-')
+                    fetchReportsToday(splitLabel[0],splitLabel[1], splitLabel[2])
+                    fetchReportsByYearMonthDate(splitLabel[0],splitLabel[1], splitLabel[2])
+                }
+            });
+    
+            // Add click event listener to the canvas
+            // Add event listener to the chart's canvas
+            document.getElementById('reportsMonthly').addEventListener('click', function(event) {
+                const activePoints = myChartMonth.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+                // console.log(activePoints)
+                if (activePoints.length > 0) {
+                    const firstPoint = activePoints[0];
+                    const label = myChartMonth.data.labels[firstPoint.index];
+                    splitLabel = label.split('-')
+                    fetchReportsSpecifiedMonth(splitLabel[0],splitLabel[1])
+                    fetchReportsByYearMonth(splitLabel[0],splitLabel[1])
+                    fetchReportsDaily(splitLabel[0],splitLabel[1])
+                    // console.log('Bar clicked:', label);
+                }
+            });
+            document.addEventListener('DOMContentLoaded', function() {
+                const currentYear = new Date().getFullYear();
+                const currentMonth = new Date().getMonth()+1;
+                const currentDate = new Date().getDate();
+                fetchYears();   
+                fetchReportsDaily();
+                fetchReportsMonthly();
+                fetchReportsToday(currentYear,currentMonth, currentDate);
+                fetchReportsSpecifiedMonth(currentYear,currentMonth);
+                fetchReportsByYear(currentYear)
+                fetchReportsByYearMonth(currentYear,currentMonth)
+                fetchReportsByYearMonthDate(currentYear,currentMonth,currentDate)
+              
+            });
+        </script>
+</body>
+</html>
